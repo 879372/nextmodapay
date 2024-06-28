@@ -1,40 +1,67 @@
-import Image from "next/image";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import Header from "@/components/ui/hearder";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card";
+import { User, Users } from "lucide-react";
 
 export default function Home() {
   return (
     <>
-      <Card className="bg-zinc-500 w-64 h-lvh">
-        <CardTitle className="text-center py-5">Modapay</CardTitle>
-        <Card className="rounded-lg bg-slate-900 mx-2">
-          <Accordion type="single"  className="rounded-xl py-2 ">
-            <AccordionItem value="item-1">
-              <AccordionTrigger  className="flex items-center ml-8 mr-3">Dashboard</AccordionTrigger>
-              <AccordionContent>
-                <Button>Painel</Button>
-                <Button>Transações</Button>
-                <Button>Cobranças</Button>
-                <Button>Usuários</Button>
-                <Button>Marketing</Button>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+      <Header />
+      <div className="flex justify-around mt-10 flex-wrap">
+        <Card className=" w-1/5 rounded-lg bg-pink-900 flex pt-5 pl-5 pb-5 gap-3  items-center">
+          <div className="w-14 h-14 bg-slate-400 rounded-full flex justify-center items-center " >
+            <Users className="" />
+          </div>
+          <div className="flex flex-col">
+            <h3 className="text-sm">Clientes totais</h3>
+            <p className="text-xs">13.450</p>
+          </div>
         </Card>
-      </Card>
+        <Card className=" w-1/5 rounded-lg bg-pink-900 flex pt-5 pl-5 pb-5  gap-3 items-center">
+          <div className="w-14 h-14 bg-slate-400 rounded-full flex justify-center items-center" >
+            <Users className="" />
+          </div>
+          <div className="flex flex-col">
+            <h3 className="text-sm">Cobranças</h3>
+            <p className="text-xs">13.450</p>
+          </div>
+        </Card>
+        <Card className=" w-1/5 rounded-lg bg-pink-900 flex pt-5 pl-5 pb-5 gap-3  items-center">
+          <div className="w-14 h-14 bg-slate-400 rounded-full flex justify-center items-center" >
+            <Users className="" />
+          </div>
+          <div className="flex flex-col">
+            <h3 className="text-sm">Transações</h3>
+            <p className="text-xs">13.450</p>
+          </div>
+        </Card>
+        <Card className=" w-1/5 rounded-lg bg-pink-900 flex  pt-5 pl-5 pb-5 gap-3  items-center ">
+          <div className="w-14 h-14 bg-slate-400 rounded-full flex justify-center items-center" >
+            <Users className="" />
+          </div>
+          <div className="flex flex-col">
+            <h3 className="text-sm">Transações suspeitas</h3>
+            <p className="text-xs">13.450</p>
+          </div>
+        </Card>
+
+      </div>
+      <div className="flex justify-evenly mt-10">
+        <Card className=" w-1/3 rounded-sm">Grafico transações</Card>
+        <Card className=" w-1/3 rounded-sm">Table transações suspeitas</Card>
+      </div>
+      <div className="flex justify-evenly mt-10">
+        <Card className=" w-1/3 rounded-sm">Clientes</Card>
+        <Card className=" w-1/3 rounded-sm">Cobranças</Card>
+      </div>
+      <div className="flex justify-evenly mt-10">
+        <Card className=" w-1/2 rounded-sm">administradores</Card>
+      </div>
     </>
   );
 }

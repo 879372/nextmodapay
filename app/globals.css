@@ -5,7 +5,11 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: yellow;
+  color: white;
+}
+
+.sidebar{
+  height: 100%
 }
   @layer base {
     :root {
@@ -78,4 +82,8 @@
     body {
       @apply bg-background text-foreground;
     }
+  }
+
+  body{
+    background-color: #e9edf7;
   }
