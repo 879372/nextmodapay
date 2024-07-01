@@ -16,9 +16,9 @@ import { Banknote, Briefcase, File, FileText, Receipt, Slash, Truck, User, UserC
 
 export default function Secao() {
     return (
-        <ScrollArea  className="h-lvh ">
-        <div className="flex flex-col gap-1 relative">
-            <Card className="rounded-xl bg-pink-900 mx-2">
+        <ScrollArea  className="h-lvh  ">
+        <div className="flex flex-col gap-1  relative">
+            <Card className="rounded-xl bg-pink-900 text-white mx-2">
             
                 <Accordion type="single" collapsible defaultValue="item-1" className="rounded-xl py-3">
                     <AccordionItem value="item-1">
@@ -48,7 +48,7 @@ export default function Secao() {
                     </AccordionItem>
                 </Accordion>
             </Card>
-            <Card className="rounded-xl bg-pink-900 mx-2">
+            <Card className="rounded-xl bg-pink-900 text-white mx-2">
                 <Accordion type="single" collapsible defaultValue="item-2" className="rounded-xl py-3 ">
                     <AccordionItem value="item-2">
                         <AccordionTrigger className="flex items-center ml-8 mr-3">Clientes</AccordionTrigger>
@@ -73,7 +73,7 @@ export default function Secao() {
                     </AccordionItem>
                 </Accordion>
             </Card>
-            <Card className="rounded-xl bg-pink-900 mx-2">
+            <Card className="rounded-xl bg-pink-900 text-white mx-2">
                 <Accordion type="single" collapsible defaultValue="item-3" className="rounded-xl py-3 ">
                     <AccordionItem value="item-3">
                         <AccordionTrigger className="flex items-center ml-8 mr-3">Transporte</AccordionTrigger>
@@ -90,7 +90,7 @@ export default function Secao() {
                     </AccordionItem>
                 </Accordion>
             </Card>
-            <Card className="rounded-xl bg-pink-900 mx-2">
+            <Card className="rounded-xl bg-pink-900 mx-2 text-white">
                 <Accordion type="single" collapsible defaultValue="item-4" className="rounded-xl py-3 ">
                     <AccordionItem value="item-4">
                         <AccordionTrigger className="flex items-center ml-8 mr-3">Suporte</AccordionTrigger>
@@ -111,7 +111,7 @@ export default function Secao() {
                     </AccordionItem>
                 </Accordion>
             </Card>
-            <Card className="rounded-xl bg-pink-900 mx-2">
+            <Card className="rounded-xl bg-pink-900 mx-2 text-white">
                 <Accordion type="single" collapsible defaultValue="item-5" className="rounded-xl py-3 ">
                     <AccordionItem value="item-5">
                         <AccordionTrigger className="flex items-center ml-8 mr-3">Configurações</AccordionTrigger>
@@ -124,7 +124,7 @@ export default function Secao() {
                     </AccordionItem>
                 </Accordion>
             </Card>
-            <Card className="rounded-xl bg-pink-900 mx-2">
+            <Card className="rounded-xl bg-pink-900 mx-2 text-white">
                 <Accordion type="single" collapsible defaultValue="item-6" className="rounded-xl py-3 ">
                     <AccordionItem value="item-6">
                         <AccordionTrigger className="flex items-center ml-8 mr-3">Financeiro</AccordionTrigger>
