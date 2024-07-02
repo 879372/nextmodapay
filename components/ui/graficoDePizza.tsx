@@ -3,13 +3,11 @@ import React, { PureComponent } from 'react';
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
 
 const data = [
-  { name: 'Group A', value: 400 },
-  { name: 'Group B', value: 300 },
-  { name: 'Group C', value: 300 },
-  { name: 'Group D', value: 200 },
+  { name: 'Active Clients', value: 400, fill: '#00C49F' },
+  { name: 'Inactive Clients', value: 300, fill: '#FF8042' },
 ];
 
-const renderActiveShape = (props:any) => {
+const renderActiveShape = (props: any) => {
   const RADIAN = Math.PI / 180;
   const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
   const sin = Math.sin(-RADIAN * midAngle);
@@ -47,7 +45,7 @@ const renderActiveShape = (props:any) => {
       />
       <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`PV ${value}`}</text>
+      <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`Count ${value}`}</text>
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
         {`(Rate ${(percent * 100).toFixed(2)}%)`}
       </text>
@@ -62,7 +60,7 @@ export default class Example2 extends PureComponent {
     activeIndex: 0,
   };
 
-  onPieEnter = (_:any , index:any) => {
+  onPieEnter = (_: any, index: any) => {
     this.setState({
       activeIndex: index,
     });
@@ -71,7 +69,7 @@ export default class Example2 extends PureComponent {
   render() {
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart width={400} height={400}>
+        <PieChart width={600} height={600}>
           <Pie
             activeIndex={this.state.activeIndex}
             activeShape={renderActiveShape}
@@ -80,7 +78,6 @@ export default class Example2 extends PureComponent {
             cy="50%"
             innerRadius={60}
             outerRadius={80}
-            fill="#8884d8"
             dataKey="value"
             onMouseEnter={this.onPieEnter}
           />
