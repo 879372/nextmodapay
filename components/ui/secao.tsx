@@ -17,7 +17,7 @@ import { Banknote, Briefcase, File, FileText, Receipt, Slash, Truck, User, UserC
 export default function Secao() {
     return (
         <ScrollArea  className="h-lvh  ">
-        <div className="flex flex-col gap-1  relative">
+        <div className="flex flex-col gap-1  ">
             <Card className="rounded-xl bg-pink-900 text-white mx-2">
             
                 <Accordion type="single" collapsible defaultValue="item-1" className="rounded-xl py-3">

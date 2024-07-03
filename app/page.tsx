@@ -1,19 +1,9 @@
 import Header from "@/components/ui/hearder";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+
 import { Card } from "@/components/ui/card";
-import { User, Users } from "lucide-react";
-import Grafico from "../components/ui/grafico"
+import { Users } from "lucide-react";
 import Example from "../components/ui/grafico";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
+import {Table, TableBody, TableCaption, TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -25,12 +15,14 @@ import Sidebar from "@/components/ui/sidebar";
 export default function Home() {
   return (
     <>
-      <Header />
-      <Sidebar/>
-      <div className="flex justify-between mt-14 flex-wrap ml-8 mr-8 ">
-        <Card className=" w-1/5 rounded-xl  flex pt-3 pl-3 pb-3 gap-3  items-center">
-          <div className="w-14 h-14 bg-slate-400 rounded-full flex justify-center items-center " >
-            <Users className="" />
+      <div className="flex w-full ">
+        <Sidebar />
+        <div className="flex flex-col w-full">
+        <Header />
+        <div className="flex flex-wrap justify-between mt-14 ml-8 mr-8">
+          <Card className="w-1/5 rounded-xl flex pt-3 pl-3 pb-3 gap-3 items-center">
+            <div className="w-14 h-14 bg-slate-400 rounded-full flex justify-center items-center">
+              <Users className="" />
           </div>
           <div className="flex flex-col">
             <h3 className="text-sm">Clientes totais</h3>
@@ -179,6 +171,8 @@ export default function Home() {
           </div>
         </Card>
       </div>
+      </div>
+    </div>
     </>
   );
 }

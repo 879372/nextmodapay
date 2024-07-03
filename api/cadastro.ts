@@ -36,6 +36,24 @@ export interface Company {
     };
   }
 
+export interface Login {
+  username: string;
+  password: string;
+}
+
+  export const LoginCompany = async (login: Login) => {
+    try{
+      const response = await axios.post(`${API_BASE_URL}api/adm/login`, login, {
+        headers:{
+          'Content-Type': 'application/json'
+        },
+      });
+      return response
+    }catch (error){
+      throw error;
+    }
+  }
+
   export const registerCompany = async (company: Company) =>{
     try{
         const response = await axios.post(`${API_BASE_URL}api/adm/company`, company,{

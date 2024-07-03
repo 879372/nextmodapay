@@ -205,20 +205,20 @@ export default function Home() {
                         {activeCard === 4 && (
                             <div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.name">Nome de Usuário*</Label>
-                                    <Input name="user.name" type="text" placeholder="Digite seu nome" onChange={handleUserChange} />
+                                    <Label htmlFor="name">Nome de Usuário*</Label>
+                                    <Input name="name" type="text" placeholder="Digite seu nome" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.email">E-mail*</Label>
-                                    <Input name="user.email" type="email" placeholder="Digite seu email" onChange={handleUserChange} />
+                                    <Label htmlFor="email">E-mail*</Label>
+                                    <Input name="email" type="email" placeholder="Digite seu email" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.password">Senha*</Label>
-                                    <Input name="user.password" type="password" placeholder="Digite sua senha" onChange={handleUserChange} />
+                                    <Label htmlFor="password">Senha*</Label>
+                                    <Input name="password" type="password" placeholder="Digite sua senha" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.phone">Telefone*</Label>
-                                    <Input name="user.phone" type="number" placeholder="Digite seu telefone" onChange={handleUserChange} />
+                                    <Label htmlFor="phone">Telefone*</Label>
+                                    <Input name="phone" type="number" placeholder="Digite seu telefone" onChange={handleUserChange} />
                                 </div>
                                 <div className="flex justify-center text-zinc-500">
                                     <Label>5/8</Label>
@@ -232,20 +232,20 @@ export default function Home() {
                         {activeCard === 5 && (
                             <div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.documentNumber">CPF/CNPJ*</Label>
-                                    <Input name="user.documentNumber" type="text" placeholder="Digite o CPF/CNPJ" onChange={handleUserChange} />
+                                    <Label htmlFor="documentNumber">CPF/CNPJ*</Label>
+                                    <Input name="documentNumber" type="text" placeholder="Digite o CPF/CNPJ" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.birthDate">Data de nascimento*</Label>
-                                    <Input name="user.birthDate" type="date" placeholder="dd/mm/aaaa" onChange={handleUserChange} />
+                                    <Label htmlFor="birthDate">Data de nascimento*</Label>
+                                    <Input name="birthDate" type="date" placeholder="dd/mm/aaaa" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.motherName">Nome da mãe*</Label>
-                                    <Input name="user.motherName" type="text" placeholder="Digite o nome da sua mãe" onChange={handleUserChange} />
+                                    <Label htmlFor="motherName">Nome da mãe*</Label>
+                                    <Input name="motherName" type="text" placeholder="Digite o nome da sua mãe" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.cep">CEP*</Label>
-                                    <Input name="user.cep" type="text" placeholder="Ex: Sala 1" onChange={handleUserChange} />
+                                    <Label htmlFor="cep">CEP*</Label>
+                                    <Input name="cep" type="text" placeholder="Ex: Sala 1" onChange={handleUserChange} />
                                 </div>
                                 <div className="flex justify-center text-zinc-500">
                                     <Label>6/8</Label>
@@ -263,16 +263,16 @@ export default function Home() {
                                     <Input type="text" placeholder="Ex: Brasil" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.uf">Estado*</Label>
-                                    <Input name="user.uf" type="text" placeholder="Ex: RN" onChange={handleUserChange} />
+                                    <Label htmlFor="uf">Estado*</Label>
+                                    <Input name="uf" type="text" placeholder="Ex: RN" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.city">Cidade*</Label>
-                                    <Input name="user.city" type="text" placeholder="Ex: Natal" onChange={handleUserChange} />
+                                    <Label htmlFor="city">Cidade*</Label>
+                                    <Input name="city" type="text" placeholder="Ex: Natal" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.street">Logradouro*</Label>
-                                    <Input name="user.street" type="text" placeholder="Ex: Rua X 123" onChange={handleUserChange} />
+                                    <Label htmlFor="street">Logradouro*</Label>
+                                    <Input name="street" type="text" placeholder="Ex: Rua X 123" onChange={handleUserChange} />
                                 </div>
                                 <div className="flex justify-center text-zinc-500">
                                     <Label>7/8</Label>
@@ -286,16 +286,16 @@ export default function Home() {
                         {activeCard === 7 && (
                             <div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.number">Número*</Label>
-                                    <Input name="user.number" type="number" placeholder="Ex: 820" onChange={handleUserChange} />
+                                    <Label htmlFor="number">Número*</Label>
+                                    <Input name="number" type="number" placeholder="Ex: 820" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.neighborhood">Bairro*</Label>
-                                    <Input name="user.neighborhood" type="text" placeholder="Ex: Bairro X" onChange={handleUserChange} />
+                                    <Label htmlFor="neighborhood">Bairro*</Label>
+                                    <Input name="neighborhood" type="text" placeholder="Ex: Bairro X" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="user.complement">Complemento*</Label>
-                                    <Input name="user.complement" type="text" placeholder="Ex: Natal" onChange={handleUserChange} />
+                                    <Label htmlFor="complement">Complemento*</Label>
+                                    <Input name="complement" type="text" placeholder="Ex: Natal" onChange={handleUserChange} />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="site">Site da empresa*</Label>

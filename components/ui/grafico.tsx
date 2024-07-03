@@ -3,12 +3,12 @@ import React, { PureComponent } from 'react';
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const data = [
-    {
+  {
         name: 'JAN',
         PIX_OUT: 1598,
         PIX_IN: 3800,
         MAQUININHA: 2500,
-    },
+  },
   {
     name: 'FEV',
     PIX_OUT: 2390,
