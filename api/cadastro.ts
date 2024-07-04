@@ -41,6 +41,7 @@ export interface Login {
   password: string;
 }
 
+
   export const LoginCompany = async (login: Login) => {
     try{
       const response = await axios.post(`${API_BASE_URL}api/adm/login`, login, {
@@ -61,7 +62,9 @@ export interface Login {
                 'Content-Type': 'application/json',
             },
         });
+        return response
     }catch (error){
         throw error;
     }
   }
+
