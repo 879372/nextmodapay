@@ -17,6 +17,7 @@ import { Login, LoginCompany } from "@/api/cadastro";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from '../../index.module.css'; 
+import { Checkbox } from "@/components/ui/checkbox"
 
 export default function Home() {
   const router = useRouter();
@@ -51,37 +52,42 @@ export default function Home() {
   };
 
   return (
-<div className="flex">
-<div className="bg-zinc-100 w-1/2 h-lvh flex justify-center items-center">
-      <Image src="/logo-Photoroom.png" width={500} height={500} alt="logo" className='rounded-sm'/>
-      </div>
-      <div className={`${styles.background} w-full flex justify-center items-center`}>
-        <div className="rounded-xl w-1/2 pl-10 pr-10">
+      <div className={` ${styles.background} w-full flex flex-col justify-center items-center `}>
+      <Image src="/logo-Photoroom.png" width={200} height={200} alt="logo" className='rounded-sm mb-5'/>
+        <Card className="rounded-sm min-w-[380px] max-w-[480px] p-5">
           <CardHeader>
             <CardTitle className="flex justify-center items-center">
-            <h1 className="text-center text-zinc-800 ">Bem-vindo(a) ao painel administrativo ModaBank</h1>
+            <p className="text-center text-zinc-800 text-xl font-medium">Bem-vindo(a) ao ModaBank</p>
           </CardTitle>
           </CardHeader>
           <CardContent className="gap-5">
             <form onSubmit={handleSubmit}>
               <div className="mb-4 text-zinc-800">
-                <Label htmlFor="username">Email*</Label>
-                <Input name="username" type="email" placeholder="Digite seu email" onChange={handleChange} required />
+                <Label htmlFor="username" className="text-xs">Email*</Label>
+                <Input name="username" type="email" placeholder="Digite seu email" onChange={handleChange} required className="h-9 rounded-sm text-xs mt-2"/>
               </div>
-              <div className="mb-4 text-zinc-800">
-                <Label htmlFor="password">Senha*</Label>
-                <Input name="password" type="password" placeholder="Digite sua senha" onChange={handleChange} required />
+              <div className="mb-4 text-zinc-800 text-xs">
+                <Label htmlFor="password" className="text-xs">Senha*</Label>
+                <Input name="password" type="password" placeholder="Digite sua senha" onChange={handleChange} required  className="h-9 rounded-sm text-xs mt-2"/>
               </div>
-              <div className="flex">
-                <Button type="submit" className="w-full ">Entrar</Button>
+              <div className="flex items-center space-x-2 mb-5">
+              <Checkbox id="terms2"  />
+              <label
+                htmlFor="terms2"
+                className="text-xs leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Lembrar senha
+              </label>
+            </div>
+              <div className="flex h-8">
+                <Button type="submit" className="w-full h-full rounded-sm text-xs	bg-pink-700 ">Entrar</Button>
               </div>
             </form>
-            <div className="mt-3 flex text-zinc-800">
-              <Label>Não tem uma conta? <Link href="/auth/cadastre" className="text-black "> Cadastre-se</Link></Label>
+            <div className="mt-5 flex justify-center text-zinc-800 ">
+              <Label className="text-xs	">Não tem uma conta? <Link href="/auth/cadastre" className="text-zinc-500 text-xs	font-bold underline hover:text-pink-700"> Cadastre-se</Link></Label>
             </div>
           </CardContent>
-        </div>
-      </div>
+        </Card>
       </div>
   );
 }

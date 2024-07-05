@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://api.modapay.com.br/';
+const API_BASE_URL = 'https://stage-api.modapay.com.br/';
 
 export interface Company {
     fantasy: string;
