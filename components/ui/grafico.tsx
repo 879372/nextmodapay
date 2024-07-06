@@ -92,9 +92,9 @@ export default class Example extends PureComponent {
           <YAxis axisLine={false} tickLine={false} hide /> {/* Removendo a descrição do eixo Y */}
           <Tooltip cursor={{ fill: 'transparent' }} />
           <Legend />
-          <Bar dataKey="PIX_IN" fill="#c0c0c0" radius={[ 4, 4, 4, 0]} /> {/* Rosa pastel */}
-          <Bar dataKey="PIX_OUT" fill="#5eb2af" radius={[4, 4, 4, 0]} /> {/* Azul claro */}
-          <Bar dataKey="MAQUININHA" fill="#135c5f" radius={[4, 4, 4, 0]} /> {/* Verde claro */}
+          <Bar dataKey="PIX_IN" fill="#11CE8A" radius={[ 4, 4, 4, 0]} /> {/* Rosa pastel */}
+          <Bar dataKey="PIX_OUT" fill="#FD0000" radius={[4, 4, 4, 0]} /> {/* Azul claro */}
+          <Bar dataKey="MAQUININHA" fill="#919191" radius={[4, 4, 4, 0]} /> {/* Verde claro */}
         </BarChart>
       </ResponsiveContainer>
     );
