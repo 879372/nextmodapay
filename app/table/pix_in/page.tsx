@@ -71,9 +71,9 @@ const ExampleComponent = () => {
     return (
         <div className="flex w-full">
             <Sidebar />
-            <div className="flex flex-col w-full">
+            <div className="flex flex-col w-full ">
                 <Header titulo="Pix In" />
-                <Card className="flex-1 rounded-xl max-h-96 p-5 w-lvw">
+                <Card className="flex-1 rounded-xl p-5 w-lvw mt-12 ml-8 h-full">
                     Transações Pix In
                     <ScrollArea className=" h-64 ">
                         <Table>

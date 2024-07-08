@@ -3,8 +3,8 @@ import React, { PureComponent } from 'react';
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
 
 const data = [
-  { name: 'Active Clients', value: 400, fill: '#00C49F' },
-  { name: 'Inactive Clients', value: 300, fill: '#FF8042' },
+  { name: 'Active Clients', value: 400, fill: '#11CE8A' },
+  { name: 'Inactive Clients', value: 300, fill: '#FD0000' },
 ];
 
 const renderActiveShape = (props: any) => {

@@ -2,10 +2,10 @@ import { IconNotification } from "@tabler/icons-react";
 import { Bell, ChevronsLeftRightIcon, MessageCircle, Search, Settings, Settings2, User } from "lucide-react";
 import Link from "next/link";
 
-export default function Header() {
+export default function Header(props:any) {
   return (
     <header className="bg-white flex justify-between h-20 items-center border-b-2 w-full">
-      <h1 className="text-4xl font-bold text-pink-900 pl-6">Dashboard</h1>
+      <h1 className="text-4xl font-bold text-pink-900 pl-6">{props.titulo}</h1>
       <nav className="mr-6">
         <ul className="flex items-center text-black gap-5">
           <li>

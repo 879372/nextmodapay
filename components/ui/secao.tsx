@@ -28,13 +28,13 @@ export default function Secao() {
                                 <IconHome size={24} strokeWidth={1.5} className="mr-2" />
                                 Painel
                             </Link>
-                            <Link href="/" className="flex items-center bg-pink-900 px-8 h-10 w-full py-5 pt-7 hover:text-gray-600">
+                            <Link href="/table/pix_in" className="flex items-center bg-pink-900 px-8 h-10 w-full py-5 pt-7 hover:text-gray-600">
                                 <IconMoneybag size={24} strokeWidth={1.5} className="mr-2" />
-                                Transações
+                                Pix In
                             </Link>
-                            <Link href="/" className="flex items-center bg-pink-900 px-8 h-10 w-full py-5 pt-7 hover:text-gray-600">
+                            <Link href="/table/pix_out" className="flex items-center bg-pink-900 px-8 h-10 w-full py-5 pt-7 hover:text-gray-600">
                                 <Banknote size={24} strokeWidth={1.5} className="mr-2" />
-                                Cobranças
+                                Pix Out
                             </Link>
                             <Link href="/" className="flex items-center bg-pink-900 px-8 h-10 w-full py-5 pt-7 hover:text-gray-600">
                                 <Users size={24} strokeWidth={1.5} className="mr-2" />
