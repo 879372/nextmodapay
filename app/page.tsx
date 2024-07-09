@@ -1,25 +1,21 @@
 'use client'
 import Header from "@/components/ui/hearder";
 import { Card } from "@/components/ui/card";
-import { ArrowDown, CreditCard, DollarSign, DollarSignIcon, Users } from "lucide-react";
+import { ArrowDown, CreditCard, DollarSignIcon } from "lucide-react";
 import Example from "../components/ui/grafico";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import Example2 from "@/components/ui/graficoDePizza";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import Sidebar from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconMoneybag } from "@tabler/icons-react";
-import PixIn from "./table/pix_in/page";
-import PixOut from "./table/pix_out/page";
+
 
 export default function Home() {
   const router = useRouter();
