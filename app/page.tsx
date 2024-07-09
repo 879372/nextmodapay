@@ -84,13 +84,8 @@ export default function Home() {
               <h1 className="mb-5">Grafico transações</h1>
               <Example2 />
             </Card>
-            
           </div>
-          <div className="flex mt-5 mb-5 gap-4 ml-6 mr-6">
-
-          <PixOut/>
-          </div>
-          <div className="flex   mb-5">
+          <div className="flex mb-5">
           <Card className=" flex-1 rounded-xl max-h-96 p-5 ml-6 mr-6">
               Transações Maquininha
               <Table className="scroll-mr-10">
