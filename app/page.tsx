@@ -73,8 +73,6 @@ export default function Home() {
               </div>
             </Card>
           </div>
-
-
           <div className="flex mt-5 flex-wrap gap-4 ml-6 mr-6">
             <Card className=" flex-1 rounded-xl max-h-96 p-5 pb-20 ">
               <h1 className="mb-2">Grafico transações</h1>
@@ -86,7 +84,7 @@ export default function Home() {
             </Card>
           </div>
           <div className="flex mb-5">
-          <Card className=" flex-1 rounded-xl max-h-96 p-5 ml-6 mr-6">
+          <Card className=" flex-1 rounded-xl max-h-96 p-5 ml-6 mr-6 mt-5">
               Transações Maquininha
               <Table className="scroll-mr-10">
                 <TableHeader>

@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "./cadastro";
 import axios from 'axios';
 
-export interface Transacao {
+export interface TransacaoOut {
     idTrasacao: string;
     chave: string;
     descricao: string;
@@ -23,7 +23,7 @@ export interface Transacao {
     };
 }
 
-export interface PixInSearchParams{
+export interface PixOutSearchParams{
     inicio?: string;
     fim?: string;
     cpf?: string;
@@ -32,7 +32,7 @@ export interface PixInSearchParams{
     itensPorPagina?: number;
 }
 
-export const listPixInByCompany = async (params: PixInSearchParams, token: string): Promise<Transacao[]> =>{
+export const listPixInByCompany = async (params: PixOutSearchParams, token: string): Promise<TransacaoOut[]> =>{
     const { inicio, fim, cpf, status, paginaAtual, itensPorPagina} = params
     try{
         const response = await axios.get(`${API_BASE_URL}api/adm/pix-out/`,{

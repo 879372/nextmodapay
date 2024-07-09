@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "./cadastro";
 import axios from 'axios';
 
-export interface Transacao {
+export interface TransacaoIn {
     chave: string;
     descricao: string;
     calendario: {
@@ -42,15 +42,22 @@ export interface PixInSearchParams{
     itensPorPagina?: number;
 }
 
-export const listPixInByCompany = async (params: PixInSearchParams): Promise<Transacao[]> =>{
+export const listPixInByCompany = async ( params: PixInSearchParams, token: string): Promise<TransacaoIn[]> =>{
     const { inicio, fim, cpf, status, paginaAtual, itensPorPagina} = params
+    console.log("Parâmetros da requisição:", { inicio, fim, paginaAtual, itensPorPagina });
     try{
-        const response = await axios.get(`https://stage-api.modapay.com.br/api/adm/pix-in/`,{
+        const response = await axios.get(`${API_BASE_URL}api/adm/pix-in/`,{
             headers:{
-                Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2RpZ28iOjE3LCJuYW1lIjoiVEVTVEUgU1RBR0UiLCJtYXN0ZXIiOiJOIiwiY29tcGFuaWVzIjpbXSwiaWRDb21wYW55IjoyOCwiaWF0IjoxNzIwNDY4NDgyLCJleHAiOjE3MjA0OTcyODJ9.df6C5rWcB5DbU7nIhViFZyYPI5SkKMPb55UGKEOVhMs`,
+                Authorization: `Bearer ${token}`,
+                "Content-Type": 'application/json'
             },
             params:{
-
+                inicio,
+                fim,
+                cpf,
+                status,
+                paginaAtual,
+                itensPorPagina
             }
         })
         return response.data
