@@ -1,96 +1,179 @@
-import { Icon12Hours } from '@tabler/icons-react';
-import { ArrowRight, Minus } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { listPixInByCompany, TransacaoIn } from '@/api/listarPixIn';
+import { listPixOutByCompany, TransacaoOut } from '@/api/listarPixOut';
+import { Minus } from 'lucide-react';
 
 const currentYear = new Date().getFullYear();
-
-const data = [
-  { name: `JAN ${currentYear}`, PIX_OUT: 1598, PIX_IN: 3800, MAQUININHA: 2500 },
-  { name: `FEV ${currentYear}`, PIX_OUT: 2390, PIX_IN: 5986, MAQUININHA: 2500 },
-  { name: `MAR ${currentYear}`, PIX_OUT: 2390, PIX_IN: 3800, MAQUININHA: 1023 },
-  { name: `ABR ${currentYear}`, PIX_OUT: 2390, PIX_IN: 2597, MAQUININHA: 2500 },
-  { name: `MAI ${currentYear}`, PIX_OUT: 2390, PIX_IN: 3800, MAQUININHA: 2500 },
-  { name: `JUN ${currentYear}`, PIX_OUT: 2390, PIX_IN: 3800, MAQUININHA: 2500 },
-  { name: `JUL ${currentYear}`, PIX_OUT: 2390, PIX_IN: 3800, MAQUININHA: 2500 },
-  { name: `AGO ${currentYear}`, PIX_OUT: 2390, PIX_IN: 2597, MAQUININHA: 2500 },
-  { name: `SET ${currentYear}`, PIX_OUT: 2390, PIX_IN: 3800, MAQUININHA: 2500 },
-  { name: `OUT ${currentYear}`, PIX_OUT: 2390, PIX_IN: 3800, MAQUININHA: 2500 },
-  { name: `NOV ${currentYear}`, PIX_OUT: 2390, PIX_IN: 3800, MAQUININHA: 2500 },
-  { name: `DEZ ${currentYear}`, PIX_OUT: 2390, PIX_IN: 3800, MAQUININHA: 2500 }
-];
 
 const Example = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(new Date(`${currentYear}-01-01`));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date(`${currentYear}-12-31`));
+  const [pixInData, setPixInData] = useState<TransacaoIn[]>([]);
+  const [pixOutData, setPixOutData] = useState<TransacaoOut[]>([]);
 
-  const handleStartDateChange = (date: Date | null) => {
-    if (date) {
-      setStartDate(date);
+  useEffect(() => {
+    fetchData();
+  }, [startDate, endDate]);
+
+  const fetchData = async () => {
+    try {
+      const formattedStartDate = startDate ? startDate.toISOString() : undefined;
+      const formattedEndDate = endDate ? endDate.toISOString() : undefined;
+
+      const token = localStorage.getItem('token') || '';
+
+      // Chamar ambas as APIs para buscar dados PIX_IN e PIX_OUT
+      const [pixInResponse, pixOutResponse] = await Promise.all([
+        listPixInByCompany({ inicio: formattedStartDate, fim: formattedEndDate, status: 'CONCLUIDA' }, token),
+        listPixOutByCompany({ inicio: formattedStartDate, fim: formattedEndDate, status: 'executed' }, token)
+      ]);
+
+      setPixInData(pixInResponse); // Atualizar estado com dados PIX_IN
+      setPixOutData(pixOutResponse); // Atualizar estado com dados PIX_OUT
+
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
     }
   };
 
-  const handleEndDateChange = (date: Date | null) => {
-    if (date) {
-      setEndDate(date);
-    }
+  // Processar dados para o gráfico
+  const processDataForChart = () => {
+    // Mapear dados de PIX_IN e inicializar o array de dados do gráfico
+    const pixInChartData: { name: string, PIX_IN: number, PIX_OUT: number }[] = [];
+
+    pixInData.forEach(item => {
+      const transactionDate = new Date(item.calendario.criacao);
+      const month = transactionDate.toLocaleString('default', { month: 'short' }).toUpperCase();
+      const year = transactionDate.getFullYear();
+      const name = `${month} ${year}`;
+      
+      // Formatar valor PIX_IN com duas casas decimais
+      const PIX_IN = Number(item.valor.original.toFixed(2));
+
+      // Verificar se já existe um item para este mês e ano
+      let existingItem = pixInChartData.find(data => data.name === name);
+
+      if (existingItem) {
+        existingItem.PIX_IN += PIX_IN;
+      } else {
+        pixInChartData.push({
+          name: name,
+          PIX_IN: PIX_IN,
+          PIX_OUT: 0
+        });
+      }
+    });
+
+    // Mapear dados de PIX_OUT
+    pixOutData.forEach(item => {
+      const transactionDate = new Date(item.solicitacao);
+      const month = transactionDate.toLocaleString('default', { month: 'short' }).toUpperCase();
+      const year = transactionDate.getFullYear();
+      const name = `${month} ${year}`;
+      
+      // Formatar valor PIX_OUT com duas casas decimais
+      const PIX_OUT = Number(item.valor.original.toFixed(2));
+
+      // Verificar se já existe um item para este mês e ano
+      let existingItem = pixInChartData.find(data => data.name === name);
+
+      if (existingItem) {
+        existingItem.PIX_OUT += PIX_OUT;
+      } else {
+        pixInChartData.push({
+          name: name,
+          PIX_IN: 0,
+          PIX_OUT: PIX_OUT
+        });
+      }
+    });
+
+    // Consolidar os valores únicos por mês (somar PIX_OUT quando necessário)
+    const consolidatedChartData = consolidateChartDataByMonth(pixInChartData);
+
+    return consolidatedChartData;
   };
 
-  const filteredData = data.filter(d => {
-    const [month, year] = d.name.split(' ');
-    const dataDate = new Date(`${year}-${month}-01`);
-    return startDate && endDate && dataDate >= startDate && dataDate <= endDate;
-  });
+  // Função para consolidar os dados por mês
+  const consolidateChartDataByMonth = (data: { name: string, PIX_IN: number, PIX_OUT: number }[]) => {
+    const consolidatedData: { name: string, PIX_IN: number, PIX_OUT: number }[] = [];
+
+    data.forEach(item => {
+      const existingItem = consolidatedData.find(d => d.name === item.name);
+
+      if (existingItem) {
+        existingItem.PIX_IN += item.PIX_IN;
+        existingItem.PIX_OUT += item.PIX_OUT;
+      } else {
+        consolidatedData.push({
+          name: item.name,
+          PIX_IN: item.PIX_IN,
+          PIX_OUT: item.PIX_OUT
+        });
+      }
+    });
+
+    return consolidatedData;
+  };
+
+  // Obter dados formatados para o gráfico
+  const chartData = processDataForChart();
+
+  // Função auxiliar para formatar números com duas casas decimais
+  const formatNumber = (value: number) => {
+    return value.toFixed(2);
+  };
 
   return (
-    <div>
-      <div className="flex mb-4 items-center gap-4 justify-end">
+    <div className=''>
+      <div className="flex mb-4 items-center gap-4 justify-between">
+        <h1 className='font-semibold '>Grafico transações</h1>
         <div className='border flex rounded-lg items-center'>
-        <div className="flex items-center gap-1  p-1  ">
-          <label className="block mb-1 text-xs font-semibold mt-1 ">Início:</label>
-          <DatePicker
-            selected={startDate}
-            onChange={handleStartDateChange}
-            selectsStart
-            startDate={startDate as Date} // Type assertion
-            endDate={endDate as Date} // Type assertion
-            dateFormat="MMMM yyyy"
-            showMonthYearPicker
-            className="text-xs p-1 w-[100px]"
-            calendarClassName="text-xs"
-          />
-        </div>
-        <Minus className='text-xs'/>
-        <div className="flex items-center gap-1  p-1 ">
-        <label className="block mb-1 text-xs font-semibold mt-1">Fim:</label>
-        <DatePicker
-            selected={endDate}
-            onChange={handleEndDateChange}
-            selectsEnd
-            startDate={startDate as Date} // Type assertion
-            endDate={endDate as Date} // Type assertion
-            minDate={startDate as Date} // Type assertion
-            dateFormat="MMMM yyyy"
-            showMonthYearPicker
-            className="text-xs p-1 w-[100px]"
-            calendarClassName="text-xs "
-          />
-        </div>
+          <div className="flex items-center gap-1 p-1">
+            <label className="block mb-1 text-xs font-semibold mt-1">Início:</label>
+            <DatePicker
+              selected={startDate}
+              onChange={(date: Date | null) => setStartDate(date || undefined)} // Lidar com null usando undefined
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              dateFormat="MMMM yyyy"
+              showMonthYearPicker
+              className="text-xs p-1 w-[100px]"
+              calendarClassName="text-xs"
+            />
+          </div>
+          <Minus className='text-xs'/>
+          <div className="flex items-center gap-1 p-1">
+            <label className="block mb-1 text-xs font-semibold mt-1">Fim:</label>
+            <DatePicker
+              selected={endDate}
+              onChange={(date: Date | null) => setEndDate(date || undefined)} // Lidar com null usando undefined
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              dateFormat="MMMM yyyy"
+              showMonthYearPicker
+              className="text-xs p-1 w-[100px]"
+              calendarClassName="text-xs"
+            />
+          </div>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={250}>
+      <ResponsiveContainer width="100%" height={290}>
         <BarChart
-          data={filteredData}
+          data={chartData}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <XAxis dataKey="name" axisLine={false} tickLine={false} />
           <YAxis axisLine={false} tickLine={false} hide />
-          <Tooltip cursor={{ fill: 'transparent' }} />
+          <Tooltip cursor={{ fill: 'transparent' }} formatter={(value: number) => formatNumber(value)} />
           <Bar dataKey="PIX_IN" fill="#11CE8A" radius={[4, 4, 4, 0]} />
           <Bar dataKey="PIX_OUT" fill="#FD0000" radius={[4, 4, 4, 0]} />
-          <Bar dataKey="MAQUININHA" fill="#919191" radius={[4, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

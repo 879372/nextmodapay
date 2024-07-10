@@ -15,6 +15,9 @@ import Example2 from "@/components/ui/graficoDePizza";
 import Sidebar from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Cabecalho from "@/components/ui/cabecalho";
+import UltimasPixIn from "@/components/ui/ultimasPixIn";
+import UltimasPixOut from "@/components/ui/ultimasPixOut";
 
 
 export default function Home() {
@@ -38,50 +41,28 @@ export default function Home() {
     <>
       <div className="flex w-full">
         <Sidebar />
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col" style={{ width: 'calc(100% - 256px)' }}>
           <Header titulo="Dashboard"/>
-          <div className="flex flex-wrap mt-12 gap-4 ml-6 mr-6">
-            <Card className="flex-1 min-w-[100px] rounded-xl flex pt-3 pl-3 pb-3 gap-3 items-center ">
-              <div className="w-14 h-14 bg-slate-100 rounded-full flex justify-center items-center">
-                <DollarSignIcon className="text-[#11CE8A]" />
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-semibold">PIX IN</h3>
-                <p className="text-sm text-[#11CE8A] font-bold">13.450</p>
-              </div>
-            </Card>
-            <Card className="flex-1 min-w-[100px] rounded-xl flex pt-4 pl-4 pb-4 gap-3 items-center">
-              <div className="w-14 h-14 bg-slate-100 rounded-full flex justify-center items-center">
-                <ArrowDown className="text-[#FD0000]" />
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-semibold">PIX OUT</h3>
-                <p className="text-sm text-[#FD0000] font-bold">13.450</p>
-              </div>
-            </Card>
-            <Card className="flex-1 min-w-[100px] rounded-xl flex pt-4 pl-4 pb-4 gap-3 items-center ">
-              <div className="w-14 h-14 bg-slate-100 rounded-full flex justify-center items-center">
-                <CreditCard className="text-[#3B82F6]" />
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-semibold">MAQUININHA</h3>
-                <p className="text-sm text-[#3B82F6] font-bold">13.450</p>
-              </div>
-            </Card>
-          </div>
+          <Cabecalho/>
           <div className="flex mt-5 flex-wrap gap-4 ml-6 mr-6">
             <Card className=" flex-1 rounded-xl max-h-96 p-5 pb-20 ">
-              <h1 className="mb-2">Grafico transações</h1>
+
               <Example />
             </Card>
             <Card className=" flex-1 rounded-xl max-h-96 p-5 pb-20 ">
               <h1 className="mb-5">Grafico transações</h1>
-              <Example2 />
+              <Example2  />
             </Card>
+          </div>
+          <div className="flex-1">
+
+            <UltimasPixIn/>
+            <UltimasPixOut/>
+
           </div>
           <div className="flex mb-5">
           <Card className=" flex-1 rounded-xl max-h-96 p-5 ml-6 mr-6 mt-5">
-              Transações Maquininha
+              Últimas Transações Maquininha
               <Table className="scroll-mr-10">
                 <TableHeader>
                   <TableRow>

@@ -37,7 +37,7 @@ export interface PixInSearchParams{
     inicio?: string;
     fim?: string;
     cpf?: string;
-    status?: string;
+    status?: string | string[];
     paginaAtual?: number;
     itensPorPagina?: number;
 }

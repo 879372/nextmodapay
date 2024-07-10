@@ -27,12 +27,12 @@ export interface PixOutSearchParams{
     inicio?: string;
     fim?: string;
     cpf?: string;
-    status?: string;
+    status?: string | string[];
     paginaAtual?: number;
     itensPorPagina?: number;
 }
 
-export const listPixInByCompany = async (params: PixOutSearchParams, token: string): Promise<TransacaoOut[]> =>{
+export const listPixOutByCompany = async (params: PixOutSearchParams, token: string): Promise<TransacaoOut[]> =>{
     const { inicio, fim, cpf, status, paginaAtual, itensPorPagina} = params
     try{
         const response = await axios.get(`${API_BASE_URL}api/adm/pix-out/`,{

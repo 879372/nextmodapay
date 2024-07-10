@@ -1,47 +1,43 @@
-import { IconNotification } from "@tabler/icons-react";
-import { Bell, ChevronsLeftRightIcon, MessageCircle, Search, Settings, Settings2, User } from "lucide-react";
+import { IconBell, IconMessageCircle, IconNotification, IconSearch, IconSettings, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
-import { useRouter } from 'next/navigation'; // Importa o hook useRouter
+import { useRouter } from 'next/navigation'; 
+
 
 export default function Header(props: any) {
-  const router = useRouter(); // Inicializa o hook useRouter
-
+  const router = useRouter(); 
   const handleLogout = () => {
-    // Lógica para realizar o logout
     localStorage.removeItem('token');
-
-    // Redirecionamento para a página de login
-    router.push('/auth/login'); // Redireciona para a página de login após o logout
+    router.push('/auth/login'); 
   };
 
   return (
     <header className="bg-white flex justify-between h-20 items-center border-b-2 w-full">
-      <h1 className="text-4xl font-bold text-pink-900 pl-6">{props.titulo}</h1>
+      <h1 className="text-4xl font-extrabold text-pink-900 pl-6">{props.titulo}</h1>
       <nav className="mr-6">
-        <ul className="flex items-center text-black gap-5">
-          <li>
-            <Link href="/">
-              <Search className="text-zinc-500"/>
+        <ul className="flex items-center text-black gap-3">
+        <li className=" p-2 rounded-lg hover:bg-slate-100">
+        <Link href="/">
+              <IconSearch className="text-zinc-500 text-xs"/>
             </Link>
           </li>
-          <li>
-            <Link href="/">
-              <Settings2 className="text-zinc-500"/>
+          <li className=" p-2 rounded-lg hover:bg-slate-100">
+          <Link href="/">
+              <IconSettings className="text-zinc-500 text-xs"/>
             </Link>
           </li>
-          <li>
-            <Link href="/">
-              <MessageCircle className="text-zinc-500"/>
+          <li className=" p-2 rounded-lg hover:bg-slate-100">
+          <Link href="/">
+              <IconMessageCircle className="text-zinc-500 text-xs"/>
             </Link>
           </li>
-          <li>
-            <Link href="/">
-              <Bell className="text-zinc-500"/>
+          <li className=" p-2 rounded-lg hover:bg-slate-100">
+          <Link href="/">
+              <IconBell className="text-zinc-500 text-xs hover:bg-slate-100 rounded-sm "/>
             </Link>
           </li>
-          <li className="w-100 h-100 p-3 rounded-full bg-slate-100">
+          <li className=" p-3 rounded-full bg-slate-100">
             <Link href="/">
-              <User className="text-zinc-500"/>
+              <IconUser className="text-zinc-500 text-xs "/>
             </Link>
           </li>
           <li>

@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import Sidebar from '@/components/ui/sidebar';
 import Header from '@/components/ui/hearder';
-import { listPixInByCompany, PixOutSearchParams, TransacaoOut } from '@/api/listarPixOut';
+import { listPixOutByCompany, PixOutSearchParams, TransacaoOut } from '@/api/listarPixOut';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -33,7 +33,7 @@ const ExampleComponent = () => {
                 // itensPorPagina: filtroItensPorPagina  
             };
             try {
-                const data = await listPixInByCompany(params, token);
+                const data = await listPixOutByCompany(params, token);
                 setTransacoes(data);
                 console.log(data)
             } catch (error) {
