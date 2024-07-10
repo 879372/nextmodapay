@@ -39,7 +39,6 @@ export default function Home() {
       const response = await LoginCompany(login);
       const token = response.data.Token;
       localStorage.setItem('token', token);
-      alert('Login realizado com sucesso!');
       router.push('/');
     } catch (error) {
       setError('Erro ao realizar login. Verifique suas credenciais.');

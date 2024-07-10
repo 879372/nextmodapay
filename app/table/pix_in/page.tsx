@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent, FormEvent, useCallback } from 'react';
 import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,19 +12,14 @@ import { Label } from '@/components/ui/label';
 import * as XLSX from 'xlsx';
 import { useRouter } from 'next/navigation';
 
-export const ExampleComponent = () => {
+const ExampleComponent = () => {
     const [transacoes, setTransacoes] = useState<TransacaoIn[]>([]);
     const [filtroInicio, setFiltroInicio] = useState<string>('');
     const [filtroFim, setFiltroFim] = useState<string>('');
     const [filtroCPF, setfiltroCPF] = useState<string>('');
     const [filtroStatus, setFiltroStatus] = useState<string>('');
-    
 
-    useEffect(() => {
-        fetchTransacoes();
-    }, [filtroInicio, filtroFim, filtroCPF, filtroStatus]);
-
-    const fetchTransacoes = async () => {
+    const fetchTransacoes = useCallback(async () => {
         const token = localStorage.getItem('token') || '';
         const params: PixInSearchParams = {
             inicio: filtroInicio,
@@ -39,7 +34,11 @@ export const ExampleComponent = () => {
         } catch (error) {
             console.error('Erro ao buscar transações:', error);
         }
-    };
+    }, [filtroInicio, filtroFim, filtroCPF, filtroStatus]);
+
+    useEffect(() => {
+        fetchTransacoes();
+    }, [fetchTransacoes]);
 
     const filtroInicioChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFiltroInicio(e.target.value);
@@ -89,7 +88,7 @@ export const ExampleComponent = () => {
     return (
         <div className="flex">
             <Sidebar />
-            <div className="flex-1"style={{width:'calc(100% - 300px)'}}>
+            <div className="flex-1" style={{width:'calc(100% - 300px)'}}>
                 <div className="flex-col">
                     <Header titulo="PIX IN" />
                     <div className="p-8">
@@ -179,14 +178,14 @@ export const ExampleComponent = () => {
                                                 <TableCell>{transacao.endToEndId}</TableCell>
                                                 <TableCell>{transacao.tipo}</TableCell>
                                                 <TableCell>{transacao.status}</TableCell>
-                                                <TableCell>{transacao.pagador.nome}</TableCell>
-                                                <TableCell>{transacao.pagador.cpf}</TableCell>
-                                                <TableCell>{transacao.pagador.valor}</TableCell>
-                                                <TableCell>{transacao.pagador.data}</TableCell>
-                                                <TableCell>{transacao.devolucao.id}</TableCell>
-                                                <TableCell>{transacao.devolucao.valor}</TableCell>
-                                                <TableCell>{transacao.devolucao.status}</TableCell>
-                                                <TableCell>{transacao.devolucao.data}</TableCell>
+                                                <TableCell>{transacao.pagador?.nome || 'N/A'}</TableCell>
+                                                <TableCell>{transacao.pagador?.cpf || 'N/A'}</TableCell>
+                                                <TableCell>{`R$ ${transacao.pagador?.valor || '0.00'}`}</TableCell>
+                                                <TableCell>{transacao.pagador?.data || 'N/A'}</TableCell>
+                                                <TableCell>{transacao.devolucao?.id || 'N/A'}</TableCell>
+                                                <TableCell>{`R$ ${transacao.devolucao?.valor || '0.00'}`}</TableCell>
+                                                <TableCell>{transacao.devolucao?.status || 'N/A'}</TableCell>
+                                                <TableCell>{transacao.devolucao?.data || 'N/A'}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
