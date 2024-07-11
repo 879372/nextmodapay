@@ -32,10 +32,10 @@ export default function UltimasPixOut() {
     }, [filtroInicio, filtroFim]);
 
     return (
-        <Card className="flex-1 rounded-xl h-96 p-5 pb-14 ml-6 mr-6 mt-5">
+        <Card className="flex-1 rounded-xl h-96 p-5 pb-14 ml-6 mr-6 mt-5 mb-6">
             <div className='flex justify-between'>
                 <h1 className='p-2 text-lg'>Últimas transações Pix Out</h1>
-                <Link href="/table/pix_out" className='p-2  font-semibold text-sm text-[#FD0000]'>Ver todos</Link>
+                <Link href="/table/pix_in" className='p-2  font-semibold text-sm text-[#11CE8A]'>Ver todos</Link>
             </div>
             <ScrollArea className="h-full whitespace-nowrap">
                 <Table>

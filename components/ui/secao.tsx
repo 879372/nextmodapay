@@ -63,7 +63,7 @@ export default function Secao() {
                         </AccordionItem>
                     </Accordion>
                 </Card>
-                <Card className="rounded-xl bg-pink-900 text-white mx-2">
+                {/* <Card className="rounded-xl bg-pink-900 text-white mx-2">
                     <Accordion type="single" collapsible defaultValue="item-3" className="rounded-xl py-3">
                         <AccordionItem value="item-3">
                             <AccordionTrigger className="flex items-center ml-8 mr-3">Transporte</AccordionTrigger>
@@ -79,7 +79,7 @@ export default function Secao() {
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
-                </Card>
+                </Card> */}
                 <Card className="rounded-xl bg-pink-900 mx-2 text-white">
                     <Accordion type="single" collapsible defaultValue="item-4" className="rounded-xl py-3">
                         <AccordionItem value="item-4">
@@ -101,7 +101,7 @@ export default function Secao() {
                         </AccordionItem>
                     </Accordion>
                 </Card>
-                <Card className="rounded-xl bg-pink-900 mx-2 text-white">
+                {/* <Card className="rounded-xl bg-pink-900 mx-2 text-white">
                     <Accordion type="single" collapsible defaultValue="item-5" className="rounded-xl py-3">
                         <AccordionItem value="item-5">
                             <AccordionTrigger className="flex items-center ml-8 mr-3">Configurações</AccordionTrigger>
@@ -130,7 +130,7 @@ export default function Secao() {
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
-                </Card>
+                </Card> */}
             </div>
         </ScrollArea>
     );

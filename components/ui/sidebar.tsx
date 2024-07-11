@@ -45,7 +45,7 @@ export default function Sidebar() {
           </>
         )}
       </div>
-      <Button onClick={toggleSidebar} className={`absolute z-50 bottom-72 ${isOpen ? "left-60" : "left-2"} transform -translate-x-1/2 transition-all duration-300`}>
+      <Button onClick={toggleSidebar} className={`absolute z-50 top-72 ${isOpen ? "left-60" : "left-2"} transform -translate-x-1/2 transition-all duration-300`}>
         {isOpen ? <IconArrowBigLeftLineFilled/> : <IconArrowBigRightLineFilled/>} 
       </Button>
     </div>

@@ -31,7 +31,7 @@ export default function Home() {
       <Sidebar />
       <div className="flex-1" style={{ width: 'calc(100% - 300px)' }}>
         <div className="flex-col">
-          <Header titulo="PIX Out" />
+          <Header titulo="Dashboard" />
           <Cabecalho />
           <div className="flex mt-5 flex-wrap gap-4 ml-6 mr-6 flex-1 ">
             <Card className=" flex-1 rounded-xl max-h-96 p-5 pb-20">

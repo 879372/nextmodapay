@@ -167,6 +167,7 @@ const Example = () => {
       <ResponsiveContainer width="100%" height={230}>
         <BarChart
           data={chartData}
+          style={{paddingTop:"30px"}}
         >
           <XAxis dataKey="name" axisLine={false} tickLine={false} />
           <YAxis axisLine={false} tickLine={false} hide />

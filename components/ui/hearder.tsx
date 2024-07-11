@@ -13,7 +13,7 @@ export default function Header(props: any) {
   };
 
   return (
-    <header className="bg-white flex justify-between h-20 items-center border-b-2 w-full px-6">
+    <header className="bg-white flex justify-between h-20 items-center border-b-2  px-6">
       <h1 className="text-4xl font-extrabold text-pink-900">{props.titulo}</h1>
       <nav className="relative">
         <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>

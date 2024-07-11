@@ -19,8 +19,8 @@ export interface Empresa {
     uf: string;
     cep: string;
     site: string;
-    typeFee: string;
-    valueFee: number;
+    typeFee: string ;
+    valueFee: number ;
     partnerTypeFee: string;
     partnerValueFee: number;
     totalFee: number;
