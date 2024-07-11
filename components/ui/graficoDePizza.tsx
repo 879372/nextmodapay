@@ -68,7 +68,8 @@ export default class Example2 extends PureComponent {
 
   render() {
     return (
-      <ResponsiveContainer width="100%" height="100%">
+
+      <ResponsiveContainer width="100%" height="100%" className="min-w-52">
         <PieChart width={600} height={600}>
           <Pie
             activeIndex={this.state.activeIndex}
@@ -83,6 +84,7 @@ export default class Example2 extends PureComponent {
           />
         </PieChart>
       </ResponsiveContainer>
+
     );
   }
 }

@@ -128,12 +128,12 @@ const Example = () => {
   };
 
   return (
-    <div className=''>
-      <div className="flex mb-4 items-center gap-4 justify-between">
+    <div className='min-w-52'>
+      <div className="flex mb-4 items-center gap-4 justify-between flex-wrap">
         <h1 className='font-semibold '>Grafico transações</h1>
-        <div className='border flex rounded-lg items-center'>
-          <div className="flex items-center gap-1 p-1">
-            <label className="block mb-1 text-xs font-semibold mt-1">Início:</label>
+        <div className='border flex rounded-lg items-center flex-wrap'>
+          <div className="flex items-center gap-1 p-1 flex-wrap">
+            <label className=" mb-1 text-xs font-semibold mt-1 flex-wrap">Início:</label>
             <DatePicker
               selected={startDate}
               onChange={(date: Date | null) => setStartDate(date || undefined)} // Lidar com null usando undefined
@@ -164,10 +164,9 @@ const Example = () => {
           </div>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={290}>
+      <ResponsiveContainer width="100%" height={230}>
         <BarChart
           data={chartData}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <XAxis dataKey="name" axisLine={false} tickLine={false} />
           <YAxis axisLine={false} tickLine={false} hide />
