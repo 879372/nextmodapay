@@ -19,8 +19,12 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useRouter } from 'next/navigation';
+import Auth from '@/app/auth/auth';
+
 
 const ExampleComponent = () => {
+    Auth()
     const [transacoes, setTransacoes] = useState<TransacaoIn[]>([]);
     const [filtroInicio, setFiltroInicio] = useState<string>('');
     const [filtroFim, setFiltroFim] = useState<string>('');
@@ -28,6 +32,7 @@ const ExampleComponent = () => {
     const [filtroStatus, setFiltroStatus] = useState<string>('');
     const [paginaAtual, setPaginaAtual] = useState<number>(1);
     const [itensPorPagina, setItensPorPagina] = useState<number>(10);
+
 
     const fetchTransacoes = useCallback(async () => {
         const token = localStorage.getItem('token') || '';
@@ -235,7 +240,7 @@ const ExampleComponent = () => {
                                                 {page}
                                             </PaginationLink>
                                         </PaginationItem>
-                                    ))}
+                                    ))}...
                                     <PaginationItem>
                                         <PaginationNext onClick={handleNextPage} />
                                     </PaginationItem>

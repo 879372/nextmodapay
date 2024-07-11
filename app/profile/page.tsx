@@ -9,8 +9,12 @@ import { IconEdit } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import ObterDadosEmpresa, { Empresa } from '@/api/obterEmpresa';
 import AtualizarDadosEmpresa from '@/api/atualizarDadosEmpresa';
+import { useRouter } from 'next/navigation';
+import Auth from '../auth/auth';
 
 export default function Profile() {
+
+    Auth()
     const [dadosEmpresa, setDadosEmpresa] = useState<Empresa | null>(null);
     const [dadosAlterados, setDadosAlterados] = useState<Empresa | null>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false);

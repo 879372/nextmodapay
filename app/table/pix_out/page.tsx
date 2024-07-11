@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Card } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -9,14 +9,27 @@ import { listPixOutByCompany, PixOutSearchParams, TransacaoOut } from '@/api/lis
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import * as XLSX from 'xlsx'; // Importando a biblioteca xlsx
-
+import * as XLSX from 'xlsx';
+import { useRouter } from 'next/navigation';
+import Auth from '@/app/auth/auth';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 const ExampleComponent = () => {
+    Auth();
+
     const [transacoes, setTransacoes] = useState<TransacaoOut[]>([]);
-    const [filtroInicio, setFiltroIncio] = useState<string>('')
-    const [filtroFim, setFiltroFim] = useState<string>('')
-    const [filtroCPF, setFiltroCPF] = useState<string>('')
-    const [filtroStatus, setFiltroStatus] = useState<string>('')
+    const [filtroInicio, setFiltroInicio] = useState<string>('');
+    const [filtroFim, setFiltroFim] = useState<string>('');
+    const [filtroCPF, setFiltroCPF] = useState<string>('');
+    const [filtroStatus, setFiltroStatus] = useState<string>('');
     const [paginaAtual, setPaginaAtual] = useState<number>(1);
     const [itensPorPagina, setItensPorPagina] = useState<number>(10);
 
@@ -41,10 +54,10 @@ const ExampleComponent = () => {
         };
 
         fetchTransacoes();
-    }, [filtroInicio, filtroFim, filtroCPF, filtroStatus, itensPorPagina, paginaAtual]);
+    }, [filtroInicio, filtroFim, filtroCPF, filtroStatus, paginaAtual]);
 
     const filtroInicioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFiltroIncio(e.target.value);
+        setFiltroInicio(e.target.value);
     }
 
     const filtroFimChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,14 +72,22 @@ const ExampleComponent = () => {
         setFiltroStatus(e.target.value)
     }
 
-    const handleItensPorPaginaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setItensPorPagina(parseInt(e.target.value, 10));
-        setPaginaAtual(1); // Resetar para a primeira página quando mudar o número de itens por página
-    }
+    const handlePageChange = (page: number) => {
+        setPaginaAtual(page);
+    };
 
-    const handlePageChange = (newPage: number) => {
-        setPaginaAtual(newPage);
-    }
+    const handleNextPage = () => {
+        setPaginaAtual(prevPage => prevPage + 10);
+    };
+
+    const handlePreviousPage = () => {
+        setPaginaAtual(prevPage => Math.max(prevPage - 10, 1));
+    };
+
+    const handleItensPorPaginaChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setItensPorPagina(Number(e.target.value));
+        setPaginaAtual(1); // Resetar para a primeira página
+    };
 
     const exportToExcel = () => {
         const fileName = 'transacoes.xlsx';
@@ -175,7 +196,7 @@ const ExampleComponent = () => {
                                                 <TableCell>{transacao.descricao}</TableCell>
                                                 <TableCell>{transacao.pagador.nome}</TableCell>
                                                 <TableCell>{transacao.pagador.cpf}</TableCell>
-                                                <TableCell >{`R$ ${transacao.valor.original}`}</TableCell>
+                                                <TableCell>{`R$ ${transacao.valor.original}`}</TableCell>
                                                 <TableCell>{transacao.endToEndId}</TableCell>
                                                 <TableCell>{transacao.status}</TableCell>
                                                 <TableCell>{transacao.recebedor.nome}</TableCell>
@@ -187,22 +208,27 @@ const ExampleComponent = () => {
                                 </Table>
                                 <ScrollBar orientation="horizontal" />
                             </ScrollArea>
-                            <div className="flex justify-between items-center mt-4">
-                                <Button 
-                                    onClick={() => handlePageChange(paginaAtual - 10)}
-                                    disabled={paginaAtual <= 1}
-                                    className="bg-gray-500 text-white"
-                                >
-                                    Anterior
-                                </Button>
-                                <span>Página {paginaAtual}</span>
-                                <Button 
-                                    onClick={() => handlePageChange(paginaAtual + 10)}
-                                    className="bg-gray-500 text-white"
-                                >
-                                    Próxima
-                                </Button>
-                            </div>
+                            <Pagination>
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious onClick={handlePreviousPage} />
+                                    </PaginationItem>
+                                    {[1, 2, 3].map(page => (
+                                        <PaginationItem key={page}>
+                                            <PaginationLink 
+                                                href="#" 
+                                                onClick={() => handlePageChange(page)}
+                                                className={paginaAtual === page ? 'active' : ''}
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    ))}...
+                                    <PaginationItem>
+                                        <PaginationNext onClick={handleNextPage} />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
                         </Card>
                     </div>
                 </div>

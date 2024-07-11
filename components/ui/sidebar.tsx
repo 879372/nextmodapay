@@ -8,6 +8,7 @@ import { IconArrowBigLeftLineFilled, IconArrowBigRightLineFilled } from "@tabler
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);

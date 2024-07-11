@@ -18,31 +18,19 @@ import { useRouter } from "next/navigation";
 import Cabecalho from "@/components/ui/cabecalho";
 import UltimasPixIn from "@/components/ui/ultimasPixIn";
 import UltimasPixOut from "@/components/ui/ultimasPixOut";
+import Auth from "./auth/auth";
 
 
 export default function Home() {
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.replace("/auth/login");
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
-
-  if (!isAuthenticated) {
-    return null; // ou você pode retornar um loader
-  }
+Auth()
 
   return (
-    <>
-      <div className="flex w-full">
-        <Sidebar />
-        <div className="flex flex-col" style={{ width: 'calc(100% - 256px)' }}>
-          <Header titulo="Dashboard"/>
+
+        <div className="flex">
+            <Sidebar />
+            <div className="flex-1" style={{ width: 'calc(100% - 300px)' }}>
+                <div className="flex-col">
+                    <Header titulo="PIX Out" />
           <Cabecalho/>
           <div className="flex mt-5 flex-wrap gap-4 ml-6 mr-6">
             <Card className=" flex-1 rounded-xl max-h-96 p-5 pb-20 ">
@@ -103,6 +91,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </>
+</div>
   );
 }
