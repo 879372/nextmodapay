@@ -26,7 +26,7 @@ export default function Header(props: any) {
             </Link>
           </li>
           <li className=" p-2 rounded-lg hover:bg-slate-100">
-            <Link href="/">
+            <Link href="/profile">
               <IconSettings className="text-zinc-500 text-xs"/>
             </Link>
           </li>

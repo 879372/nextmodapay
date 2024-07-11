@@ -11,15 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import * as XLSX from 'xlsx'; // Importando a biblioteca xlsx
 
-
 const ExampleComponent = () => {
     const [transacoes, setTransacoes] = useState<TransacaoOut[]>([]);
     const [filtroInicio, setFiltroIncio] = useState<string>('')
     const [filtroFim, setFiltroFim] = useState<string>('')
     const [filtroCPF, setFiltroCPF] = useState<string>('')
     const [filtroStatus, setFiltroStatus] = useState<string>('')
-    const [filtroPaginaAtual, setFiltroPaginaAtual] = useState<number | undefined>()
-    const [filtroItensPorPagina, setFiltroItensPorPagina] = useState<number | undefined>()
+    const [paginaAtual, setPaginaAtual] = useState<number>(1);
+    const [itensPorPagina, setItensPorPagina] = useState<number>(10);
 
     useEffect(() => {
         const fetchTransacoes = async () => {
@@ -29,8 +28,8 @@ const ExampleComponent = () => {
                 fim: filtroFim,
                 cpf: filtroCPF,
                 status: filtroStatus,
-                // paginaAtual: filtroPaginaAtual,
-                // itensPorPagina: filtroItensPorPagina  
+                paginaAtual,
+                itensPorPagina  
             };
             try {
                 const data = await listPixOutByCompany(params, token);
@@ -42,7 +41,7 @@ const ExampleComponent = () => {
         };
 
         fetchTransacoes();
-    }, [filtroInicio, filtroFim, filtroCPF, filtroStatus]);
+    }, [filtroInicio, filtroFim, filtroCPF, filtroStatus, itensPorPagina, paginaAtual]);
 
     const filtroInicioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFiltroIncio(e.target.value);
@@ -60,23 +59,14 @@ const ExampleComponent = () => {
         setFiltroStatus(e.target.value)
     }
 
-    // const filtroitemsPorPaginaChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
-    //     const valor = parseInt(e.target.value, 10);
-    //     if (!isNaN(valor)) {
-    //         setFiltroPaginaAtual(valor);
-    //     } else {
-    //         setFiltroPaginaAtual(10); 
-    //     }
-    // }
+    const handleItensPorPaginaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setItensPorPagina(parseInt(e.target.value, 10));
+        setPaginaAtual(1); // Resetar para a primeira página quando mudar o número de itens por página
+    }
 
-    // const filtroPaginaAtualChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
-    //     const valor = parseInt(e.target.value, 10);
-    //     if (!isNaN(valor)) {
-    //         setFiltroPaginaAtual(valor);
-    //     } else {
-    //         setFiltroPaginaAtual(1); 
-    //     }
-    // }
+    const handlePageChange = (newPage: number) => {
+        setPaginaAtual(newPage);
+    }
 
     const exportToExcel = () => {
         const fileName = 'transacoes.xlsx';
@@ -92,7 +82,7 @@ const ExampleComponent = () => {
             Comprovante: transacao.comprovante,
             Status: transacao.status,
             Recebedor: transacao.recebedor.nome,
-            'CPF Receedor': transacao.recebedor.documento,
+            'CPF Recebedor': transacao.recebedor.documento,
             'Data Pagamento': transacao.recebedor.data,
         })));
 
@@ -101,6 +91,7 @@ const ExampleComponent = () => {
 
         XLSX.writeFile(wb, fileName);
     };
+
     return (
         <div className="flex">
             <Sidebar />
@@ -147,7 +138,7 @@ const ExampleComponent = () => {
                                     </select>
                                 </div>
 
-                                <div className='self-end '>
+                                <div className='self-end'>
                                     <Button className="bg-pink-900 max-h-8 max-w-[130px] rounded text-xs"
                                         onClick={exportToExcel}
                                     >
@@ -167,7 +158,7 @@ const ExampleComponent = () => {
                                             <TableHead className='text-center'>Pagador</TableHead>
                                             <TableHead className='text-center'>CPF Pagador</TableHead>
                                             <TableHead className='text-center'>Valor Solicitado</TableHead>
-                                            <TableHead className='text-center'>EndtoEndId</TableHead>
+                                            <TableHead className='text-center'>EndToEndId</TableHead>
                                             <TableHead className='text-center'>Status</TableHead>
                                             <TableHead className='text-center'>Recebedor</TableHead>
                                             <TableHead className='text-center'>CPF Recebedor</TableHead>
@@ -196,6 +187,22 @@ const ExampleComponent = () => {
                                 </Table>
                                 <ScrollBar orientation="horizontal" />
                             </ScrollArea>
+                            <div className="flex justify-between items-center mt-4">
+                                <Button 
+                                    onClick={() => handlePageChange(paginaAtual - 10)}
+                                    disabled={paginaAtual <= 1}
+                                    className="bg-gray-500 text-white"
+                                >
+                                    Anterior
+                                </Button>
+                                <span>Página {paginaAtual}</span>
+                                <Button 
+                                    onClick={() => handlePageChange(paginaAtual + 10)}
+                                    className="bg-gray-500 text-white"
+                                >
+                                    Próxima
+                                </Button>
+                            </div>
                         </Card>
                     </div>
                 </div>

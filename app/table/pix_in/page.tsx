@@ -1,5 +1,5 @@
-'use client'
-import React, { useState, useEffect, ChangeEvent, FormEvent, useCallback } from 'react';
+'use client';
+import React, { useState, useEffect, ChangeEvent, useCallback } from 'react';
 import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,15 @@ import { listPixInByCompany, PixInSearchParams, TransacaoIn } from '@/api/listar
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import * as XLSX from 'xlsx';
-import { useRouter } from 'next/navigation';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const ExampleComponent = () => {
     const [transacoes, setTransacoes] = useState<TransacaoIn[]>([]);
@@ -18,6 +26,8 @@ const ExampleComponent = () => {
     const [filtroFim, setFiltroFim] = useState<string>('');
     const [filtroCPF, setfiltroCPF] = useState<string>('');
     const [filtroStatus, setFiltroStatus] = useState<string>('');
+    const [paginaAtual, setPaginaAtual] = useState<number>(1);
+    const [itensPorPagina, setItensPorPagina] = useState<number>(10);
 
     const fetchTransacoes = useCallback(async () => {
         const token = localStorage.getItem('token') || '';
@@ -26,15 +36,16 @@ const ExampleComponent = () => {
             fim: filtroFim,
             cpf: filtroCPF,
             status: filtroStatus,
+            paginaAtual: paginaAtual,
+            itensPorPagina: itensPorPagina
         };
         try {
             const data = await listPixInByCompany(params, token);
             setTransacoes(data);
-            console.log(data);
         } catch (error) {
             console.error('Erro ao buscar transações:', error);
         }
-    }, [filtroInicio, filtroFim, filtroCPF, filtroStatus]);
+    }, [filtroInicio, filtroFim, filtroCPF, filtroStatus, paginaAtual, itensPorPagina]);
 
     useEffect(() => {
         fetchTransacoes();
@@ -54,6 +65,23 @@ const ExampleComponent = () => {
 
     const filtroStatusChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setFiltroStatus(e.target.value);
+    };
+
+    const handlePageChange = (page: number) => {
+        setPaginaAtual(page);
+    };
+
+    const handleNextPage = () => {
+        setPaginaAtual(prevPage => prevPage + 10);
+    };
+
+    const handlePreviousPage = () => {
+        setPaginaAtual(prevPage => Math.max(prevPage - 10, 1));
+    };
+
+    const handleItensPorPaginaChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setItensPorPagina(Number(e.target.value));
+        setPaginaAtual(1); // Resetar para a primeira página
     };
 
     const exportToExcel = () => {
@@ -88,7 +116,7 @@ const ExampleComponent = () => {
     return (
         <div className="flex">
             <Sidebar />
-            <div className="flex-1" style={{width:'calc(100% - 300px)'}}>
+            <div className="flex-1" style={{ width: 'calc(100% - 300px)' }}>
                 <div className="flex-col">
                     <Header titulo="PIX IN" />
                     <div className="p-8">
@@ -131,7 +159,7 @@ const ExampleComponent = () => {
                                     </select>
                                 </div>
 
-                                <div className='self-end '>
+                                <div className='self-end'>
                                     <Button className="bg-pink-900 max-h-8 max-w-[130px] rounded text-xs"
                                         onClick={exportToExcel}
                                     >
@@ -192,6 +220,27 @@ const ExampleComponent = () => {
                                 </Table>
                                 <ScrollBar orientation="horizontal" />
                             </ScrollArea>
+                            <Pagination>
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious onClick={handlePreviousPage} />
+                                    </PaginationItem>
+                                    {[1, 2, 3].map(page => (
+                                        <PaginationItem key={page}>
+                                            <PaginationLink 
+                                                href="#" 
+                                                onClick={() => handlePageChange(page)}
+                                                className={paginaAtual === page ? 'active' : ''}
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    ))}
+                                    <PaginationItem>
+                                        <PaginationNext onClick={handleNextPage} />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
                         </Card>
                     </div>
                 </div>

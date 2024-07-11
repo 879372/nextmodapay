@@ -6,11 +6,11 @@ export interface Empresa {
     fantasy: string;
     name: string;
     documentNumber: string;
-    email: string ;
+    email: string;
     phone: string;
     type: string;
-    ie: string ;
-    im: string ;
+    ie: string;
+    im: string;
     street: string;
     number: string;
     complement: string;
@@ -18,7 +18,7 @@ export interface Empresa {
     city: string;
     uf: string;
     cep: string;
-    site: string ;
+    site: string;
     typeFee: string;
     valueFee: number;
     partnerTypeFee: string;
@@ -27,9 +27,9 @@ export interface Empresa {
     status: string;
 }
 
-const ObterDadosEmpresa = async (token: string): Promise<Empresa[]> => {
+const ObterDadosEmpresa = async (token: string): Promise<Empresa | null> => {
     try {
-        const response = await axios.get(`${API_BASE_URL}api/adm/company`, {
+        const response = await axios.get(`${API_BASE_URL}api/adm/company-id`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -37,7 +37,7 @@ const ObterDadosEmpresa = async (token: string): Promise<Empresa[]> => {
         return response.data;
     } catch (error) {
         console.error('Erro ao obter dados da empresa:', error);
-        return [];
+        return null;
     }
 };
 
