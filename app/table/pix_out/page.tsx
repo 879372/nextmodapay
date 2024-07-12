@@ -24,6 +24,12 @@ import {
 } from "@/components/ui/pagination";
 const ExampleComponent = () => {
     Auth();
+    
+    const [isOpen, setIsOpen] = useState(true);
+    const toggleSidebar = () => {
+      setIsOpen(!isOpen);
+    };
+
 
     const [transacoes, setTransacoes] = useState<TransacaoOut[]>([]);
     const [filtroInicio, setFiltroInicio] = useState<string>('');
@@ -115,10 +121,10 @@ const ExampleComponent = () => {
 
     return (
         <div className="flex">
-            <Sidebar />
-            <div className="flex-1" style={{ width: 'calc(100% - 300px)' }}>
+      <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
+      <div className={` flex-1 transition-all duration-300 ease-in-out ${isOpen ? 'ml-64 ' : 'ml-0'}`} style={{ width: isOpen ? 'calc(100% - 300px)' : '100%'}}>
                 <div className="flex-col">
-                    <Header titulo="PIX Out" />
+                    <Header titulo="Pix Out" />
                     <div className="p-8">
                         <Card className="rounded-xl p-5 h-full">
                             <div className='flex justify-end gap-2 items-center mb-2 flex-wrap'>

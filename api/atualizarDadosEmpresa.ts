@@ -23,7 +23,7 @@ const AtualizarDadosEmpresa = async (params: AtualizarEmpresa, token: string): P
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
-        });
+        })
         
         if (response.status === 204) {
             console.log(response);
@@ -32,6 +32,7 @@ const AtualizarDadosEmpresa = async (params: AtualizarEmpresa, token: string): P
         }
     } catch (error) {
         console.error('Erro ao atualizar dados da empresa:', error);
+
     }
 };
 

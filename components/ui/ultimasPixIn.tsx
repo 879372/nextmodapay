@@ -33,14 +33,14 @@ export default function UltimasPixIn() {
 
     return (
 
-        <Card className="flex-1 rounded-xl h-96 p-5 pb-14 ml-6 mr-6 mt-5">
-            <div className='flex justify-between'>
-                <h1 className='p-2 text-lg'>Últimas transações Pix In</h1>
-                <Link href="/table/pix_in" className='p-2  font-semibold text-sm text-[#11CE8A]'>Ver todos</Link>
+        <Card className="flex-1 rounded-xl h-96 p-5 pb-14 ml-6 mr-6 mt-5 ">
+            <div className='flex justify-between items-center'>
+                <h1 className='p-2  font-semibold'>Últimas transações Pix In</h1>
+                <Link href="/table/pix_in" className='p-2  font-semibold text-sm text-[#11CE8A]  hover:bg-slate-100 rounded-md'>Ver todos</Link>
             </div>
-            <ScrollArea className="h-full whitespace-nowrap">
+            <ScrollArea className="h-full whitespace-nowrap pb-5 relative">
                 <Table>
-                    <TableHeader >
+                    <TableHeader className=' sticky  top-0 z-10'>
                         <TableRow>
                             {/* Cabeçalhos da tabela */}
                             <TableHead className='text-center'>Chave</TableHead>

@@ -1,47 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { CardTitle } from "./card";
 import Secao from "./secao";
 import { Button } from "./button";
 import { IconArrowBigLeftLineFilled, IconArrowBigRightLineFilled } from "@tabler/icons-react";
 
-export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+interface SidebarProps {
+  isOpen: boolean; // Propriedade que indica se o Sidebar está aberto
+  toggleSidebar: () => void; // Função para alternar o estado do Sidebar
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 768px)');
-    const handleMediaQueryChange = (e: any) => {
-      if (!e.matches) {
-        setIsOpen(false);
-        setIsSmallScreen(true);
-      } else {
-        setIsSmallScreen(false);
+    const handleResize = () => {
+      // Fecha o sidebar se a largura da janela for menor que 768px (por exemplo)
+      if (window.innerWidth < 768 && isOpen) {
+        toggleSidebar();
       }
     };
 
-    mediaQuery.addEventListener('change', handleMediaQueryChange);
-    handleMediaQueryChange(mediaQuery);
+    // Adiciona o event listener para monitorar o redimensionamento da janela
+    window.addEventListener("resize", handleResize);
 
+    // Remove o event listener quando o componente é desmontado
     return () => {
-      mediaQuery.removeEventListener('change', handleMediaQueryChange);
+      window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [isOpen, toggleSidebar]);
 
   return (
-    <div className="relative flex">
-      <div className={`bg-pink-700 ${isOpen ? "w-64" : "w-0"} ${isSmallScreen ? "fixed z-50" : "relative"} min-h-screen transition-width duration-300 overflow-y-auto`}>
+    <div className="fixed flex ">
+      <div className={ ` bg-pink-700 ${isOpen ? "w-64" : "w-0"} min-h-screen transition-width duration-300 `}>
         {isOpen && (
           <>
             <CardTitle className="text-center py-5 flex justify-center h-20 items-center gap-2 border-b border-b-neutral-400 mb-2">
               <Image src="/logosemfundo.png" width={180} height={100} alt="Rewind-UI" className="rounded-sm" />
             </CardTitle>
-            <Secao />
+            <Secao/>
           </>
         )}
       </div>
@@ -51,3 +47,5 @@ export default function Sidebar() {
     </div>
   );
 }
+
+export default Sidebar;

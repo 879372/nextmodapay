@@ -7,10 +7,12 @@ export default function Header(props: any) {
   const router = useRouter(); 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.push('/auth/login'); 
-  };
+    const [isOpen, setIsOpen] = useState(true);
+
+    const toggleSidebar = () => {
+      setIsOpen(!isOpen);
+    };
+  
 
   return (
     <header className="bg-white flex justify-between h-20 items-center border-b-2  px-6">
@@ -45,14 +47,7 @@ export default function Header(props: any) {
               <IconUser className="text-zinc-500 text-xs "/>
             </Link>
           </li>
-          <li>
-            <button
-              onClick={handleLogout}
-              className="text-zinc-500 cursor-pointer"
-            >
-              Logout
-            </button>
-          </li>
+
         </ul>
       </nav>
     </header>

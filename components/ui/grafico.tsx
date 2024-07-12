@@ -27,8 +27,8 @@ const Example = () => {
 
       // Chamar ambas as APIs para buscar dados PIX_IN e PIX_OUT
       const [pixInResponse, pixOutResponse] = await Promise.all([
-        listPixInByCompany({ inicio: formattedStartDate, fim: formattedEndDate, status: 'CONCLUIDA' }, token),
-        listPixOutByCompany({ inicio: formattedStartDate, fim: formattedEndDate, status: 'executed' }, token)
+        listPixInByCompany({ inicio: formattedStartDate, fim: formattedEndDate, status: 'CONCLUIDA', itensPorPagina: 600 }, token),
+        listPixOutByCompany({ inicio: formattedStartDate, fim: formattedEndDate, status: 'executed', itensPorPagina: 600 }, token)
       ]);
 
       setPixInData(pixInResponse); // Atualizar estado com dados PIX_IN
@@ -48,7 +48,7 @@ const Example = () => {
       const transactionDate = new Date(item.calendario.criacao);
       const month = transactionDate.toLocaleString('default', { month: 'short' }).toUpperCase();
       const year = transactionDate.getFullYear();
-      const name = `${month} ${year}`;
+      const name = `${month}`;
       
       // Formatar valor PIX_IN com duas casas decimais
       const PIX_IN = Number(item.valor.original.toFixed(2));
@@ -72,7 +72,7 @@ const Example = () => {
       const transactionDate = new Date(item.solicitacao);
       const month = transactionDate.toLocaleString('default', { month: 'short' }).toUpperCase();
       const year = transactionDate.getFullYear();
-      const name = `${month} ${year}`;
+      const name = `${month}`;
       
       // Formatar valor PIX_OUT com duas casas decimais
       const PIX_OUT = Number(item.valor.original.toFixed(2));

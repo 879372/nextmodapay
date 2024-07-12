@@ -95,7 +95,7 @@ export default function Cabecalho() {
                             <h3 className="text-sm font-semibold mr-5">Total Maquininha</h3>
                         </div>
                         <div>
-                            <p className="text-sm text-[#3B82F6] font-bold ">13.450</p>
+                            <p className="text-sm text-[#3B82F6] font-bold ">R$ 0</p>
                         </div>
                     </div>
                 </Card>

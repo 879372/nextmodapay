@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import React, { useState, useEffect, ChangeEvent, useCallback } from 'react';
 import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Card } from '@/components/ui/card';
@@ -22,9 +22,16 @@ import {
 import { useRouter } from 'next/navigation';
 import Auth from '@/app/auth/auth';
 
+interface ExampleComponentProps {
+    isOpen: boolean; // Propriedade que indica se o Sidebar está aberto
+}
 
-const ExampleComponent = () => {
-    Auth()
+export default function  ExampleComponent(){
+    Auth();
+    const [isOpen, setIsOpen] = useState(true);
+    const toggleSidebar = () => {
+      setIsOpen(!isOpen);
+    };
     const [transacoes, setTransacoes] = useState<TransacaoIn[]>([]);
     const [filtroInicio, setFiltroInicio] = useState<string>('');
     const [filtroFim, setFiltroFim] = useState<string>('');
@@ -32,7 +39,6 @@ const ExampleComponent = () => {
     const [filtroStatus, setFiltroStatus] = useState<string>('');
     const [paginaAtual, setPaginaAtual] = useState<number>(1);
     const [itensPorPagina, setItensPorPagina] = useState<number>(10);
-
 
     const fetchTransacoes = useCallback(async () => {
         const token = localStorage.getItem('token') || '';
@@ -120,10 +126,10 @@ const ExampleComponent = () => {
 
     return (
         <div className="flex">
-            <Sidebar />
-            <div className="flex-1" style={{ width: 'calc(100% - 300px)' }}>
+      <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
+      <div className={` flex-1 transition-all duration-300 ease-in-out ${isOpen ? 'ml-64 ' : 'ml-0'}`} style={{ width: isOpen ? 'calc(100% - 300px)' : '100%'}}>
                 <div className="flex-col">
-                    <Header titulo="PIX IN" />
+                    <Header titulo="Pix In" />
                     <div className="p-8">
                         <Card className="rounded-xl p-5 h-full">
                             <div className='flex justify-end gap-2 items-center mb-2 flex-wrap'>
@@ -254,4 +260,3 @@ const ExampleComponent = () => {
     );
 };
 
-export default ExampleComponent;

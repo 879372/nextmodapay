@@ -9,25 +9,46 @@ import { IconEdit } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import ObterDadosEmpresa, { Empresa } from '@/api/obterEmpresa';
 import AtualizarDadosEmpresa from '@/api/atualizarDadosEmpresa';
-import { useRouter } from 'next/navigation';
+import AtualizarSenhaAdm, { Atualizarsenha } from '@/api/atualizarSenha';
 import Auth from '../auth/auth';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function Profile() {
-    Auth()
+    Auth(); // Não está claro o propósito desta linha; presumindo que configure a autenticação.
+
+    const [isOpen, setIsOpen] = useState(true);
     const [dadosEmpresa, setDadosEmpresa] = useState<Empresa | null>(null);
     const [dadosAlterados, setDadosAlterados] = useState<Empresa | null>(null);
+    const [alterarSenha, setAlterarSenha] = useState<Atualizarsenha>({ oldPassword: '', newPassword: '', confirmPassword: '' });
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null); // Estado para armazenar mensagens de erro
+
+
+    const toggleSidebar = () => {
+        setIsOpen(!isOpen);
+    };
 
     const fetchDadosEmpresa = useCallback(async () => {
-        setIsLoading(true);
         const token = localStorage.getItem('token') || '';
+        setIsLoading(true);
         try {
             const data = await ObterDadosEmpresa(token);
             setDadosEmpresa(data);
             setDadosAlterados(data); // Inicialmente, os dados alterados são iguais aos dados da empresa
         } catch (error) {
             console.error('Erro ao chamar dados da empresa:', error);
+            setError('Erro ao carregar dados da empresa. Por favor, tente novamente mais tarde.');
         } finally {
             setIsLoading(false);
         }
@@ -56,7 +77,35 @@ export default function Profile() {
                 setIsEditing(false);
             } catch (error) {
                 console.error('Erro ao atualizar dados da empresa:', error);
+                setError('Erro ao atualizar dados da empresa. Por favor, tente novamente.');
             }
+        }
+    };
+
+    const handleUpdatePassword = async () => {
+        const token = localStorage.getItem('token') || '';
+        setError(null); // Limpar qualquer erro anterior
+        try {
+            // Verifica se todos os campos de senha estão preenchidos
+            if (alterarSenha.oldPassword && alterarSenha.newPassword && alterarSenha.confirmPassword) {
+                const response = await AtualizarSenhaAdm(alterarSenha, token);
+                if(response === undefined){
+                    setError('Erro ao atualizada senha!');
+                }else if (alterarSenha.oldPassword === alterarSenha.newPassword) {
+                    setError('A senha nova não pode ser igual a senha atual!');
+                }else if (alterarSenha.newPassword !== alterarSenha.confirmPassword) {
+                    setError('Erro ao confirmar senha!');
+                }else if(alterarSenha.newPassword === alterarSenha.confirmPassword && length < 8){
+                    setError('A senha deve ter no mínimo 8 caracteres sendo pelo menos uma letra maiuscula um número e um caractere especial @ .! # $')
+                }else{
+                    alert("Senha atualizada com sucesso!")
+                }
+            } else {
+                setError('Todos os campos de senha são obrigatórios.');
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar senha:', error);
+            setError('Erro ao atualizar senha. Por favor, tente novamente.');
         }
     };
 
@@ -71,8 +120,8 @@ export default function Profile() {
 
     return (
         <div className="flex">
-            <Sidebar />
-            <div className="flex-1" style={{ width: 'calc(100% - 300px)' }}>
+            <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
+            <div className={`flex-1 transition-all duration-300 ease-in-out ${isOpen ? 'ml-64 ' : 'ml-0'}`} style={{ width: isOpen ? 'calc(100% - 300px)' : '100%' }}>
                 <div className="flex-col">
                     <Header titulo="Configurações" />
                     <div className="p-8">
@@ -86,11 +135,55 @@ export default function Profile() {
                                             <Button onClick={handleCancelClick} className='bg-red-600'>Cancelar</Button>
                                         </>
                                     ) : (
-                                        <Button onClick={handleEditClick} variant="secondary" className='flex items-center border rounded-md Button'>
-                                            <IconEdit className='mr-1' />
-                                            Editar
-                                        </Button>
+                                        <>
+                                            <Button onClick={handleEditClick} variant="secondary" className='flex items-center border rounded-md Button'>
+                                                <IconEdit className='mr-1' />
+                                                Editar
+                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger className=' p-1 flex items-center border rounded-md Button bg-secondary text-secondary-foreground hover:bg-secondary/80'> Atualizar senha</AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Atualização de senha</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            <div className='flex flex-col gap-2 mt-5'>
+                                                                <div>
+                                                                    <Label>Senha atual</Label>
+                                                                    <Input
+                                                                        type='password'
+                                                                        value={alterarSenha.oldPassword}
+                                                                        onChange={(e) => setAlterarSenha({ ...alterarSenha, oldPassword: e.target.value })}
+                                                                        placeholder='Digite sua senha atual' />
+                                                                </div>
+                                                                <div>
+                                                                    <Label>Nova senha</Label>
+                                                                    <Input
+                                                                        type='password'
+                                                                        value={alterarSenha.newPassword}
+                                                                        onChange={(e) => setAlterarSenha({ ...alterarSenha, newPassword: e.target.value })}
+                                                                        placeholder='Digite sua nova senha' />
+                                                                </div>
+                                                                <div>
+                                                                    <Label>Confirme sua senha</Label>
+                                                                    <Input
+                                                                        type='password'
+                                                                        value={alterarSenha.confirmPassword}
+                                                                        onChange={(e) => setAlterarSenha({ ...alterarSenha, confirmPassword: e.target.value })}
+                                                                        placeholder='Confirme sua nova senha' />
+                                                                </div>
+                                                            </div>
+                                                            {error && <Label className='text-red-500'>{error}</Label>}
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                        <Button onClick={handleUpdatePassword}>Salvar</Button>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </>
                                     )}
+
                                 </div>
                             </div>
 
