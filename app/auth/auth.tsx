@@ -8,7 +8,7 @@ export default function Auth(){
     useEffect(() => {
       const token = localStorage.getItem("token");
       if (!token) {
-        router.replace("/auth/login");
+        router.replace("/");
       } else {
         setIsAuthenticated(true);
       }
