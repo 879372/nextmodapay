@@ -1,82 +1,124 @@
 'use client'
-import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Image from "next/image";
+import Link from "next/link";
+import { Login, LoginCompany } from "@/api/cadastro";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/ui/hearder";
-import { Card } from "@/components/ui/card";
-import { ArrowDown, CreditCard, DollarSignIcon } from "lucide-react";
-import Example from "../components/ui/grafico";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import Example2 from "@/components/ui/graficoDePizza";
-import Sidebar from "@/components/ui/sidebar";
-import Cabecalho from "@/components/ui/cabecalho";
-import UltimasPixIn from "@/components/ui/ultimasPixIn";
-import UltimasPixOut from "@/components/ui/ultimasPixOut";
-import Auth from "./auth/auth";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import styles from './index.module.css'; 
+import { Checkbox } from "@/components/ui/checkbox"
+
 
 export default function Home() {
-  const [isOpen, setIsOpen] = useState(true);
   const router = useRouter();
+  const [login, setLogin] = useState({
+    username: '',
+    password: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Function to handle sidebar visibility based on window width
-  const handleSidebarVisibility = () => {
-    const shouldShowSidebar = window.innerWidth > 768; // Example threshold for large screens
-    setIsOpen(shouldShowSidebar);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const cleanedValue = value.trim();
+    setLogin((prevLogin) => ({
+      ...prevLogin,
+      [name]: cleanedValue,
+    }));
   };
 
-  // Effect to set sidebar visibility on component mount and window resize
-  useEffect(() => {
-    handleSidebarVisibility(); // Set initial sidebar visibility
-
-    const handleResize = () => {
-      handleSidebarVisibility(); // Update sidebar visibility on window resize
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []); // Empty dependency array ensures this effect runs only once on mount
-
-  // Toggle sidebar visibility
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await LoginCompany(login);
+      const token = response.data.Token;
+      console.log(token)
+      localStorage.setItem('token', token);
+      router.push('/dashboard');
+    } catch (error) {
+      setError('Erro ao realizar login. Verifique suas credenciais.');
+      console.error('Erro ao realizar login:', error);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  // Perform authentication logic
-  Auth();
 
   return (
-    <div className="flex">
-      <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
-      <div className={`flex-1 transition-margin duration-300 ease-in-out ${isOpen ? 'ml-64' : 'ml-0'}`} style={{ width: isOpen ? 'calc(100% - 300px)' : '100%' }}>
-        <div className="flex-col">
-          <Header titulo="Dashboard" />
-          <Cabecalho />
-          <div className="flex mt-5 flex-wrap gap-4 ml-6 mr-6 flex-1">
-            <Card className="flex-1 rounded-xl max-h-96 p-5 pb-20">
-              <Example />
-            </Card>
-            <Card className="flex-1 rounded-xl max-h-96 p-5 pb-20">
-              <h1 className="mb-5">Gráfico de Transações</h1>
-              <Example2 />
-            </Card>
+    <div className={`${styles.background} w-full flex flex-col justify-center items-center`}>
+      <Image src="/logo-Photoroom.png" width={200} height={200} alt="logo" className="rounded-sm mb-5" />
+      <Card className="rounded-sm min-w-[380px] max-w-[480px] p-5">
+        <CardHeader>
+          <CardTitle className="flex justify-center items-center">
+            <p className="text-center text-zinc-800 text-xl font-medium">Bem-vindo(a) ao ModaBank</p>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="gap-5">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4 text-zinc-800">
+              <Label htmlFor="username" className="text-xs">
+                Email*
+              </Label>
+              <Input
+                name="username"
+                type="email"
+                placeholder="Digite seu email"
+                onChange={handleChange}
+                required
+                className="h-9 rounded-sm text-xs mt-2"
+              />
+            </div>
+            <div className="mb-4 text-zinc-800 text-xs">
+              <Label htmlFor="password" className="text-xs">
+                Senha*
+              </Label>
+              <Input
+                name="password"
+                type="password"
+                placeholder="Digite sua senha"
+                onChange={handleChange}
+                required
+                className="h-9 rounded-sm text-xs mt-2"
+              />
+            </div>
+            <div className="flex items-center space-x-2 mb-5">
+              <Checkbox id="terms2" />
+              <label
+                htmlFor="terms2"
+                className="text-xs leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Lembrar senha
+              </label>
+            </div>
+            <div className="flex h-8">
+              <Button type="submit" className="w-full h-full rounded-sm text-xs bg-pink-700" disabled={loading}>
+                {loading ? 'Carregando...' : 'Entrar'}
+              </Button>
+            </div>
+            {error && (
+              <div className="mt-3 text-red-500 text-xs text-center">
+                {error}
+              </div>
+            )}
+          </form>
+          <div className="mt-5 flex justify-center text-zinc-800">
+            <Label className="text-xs">
+              Não tem uma conta?{' '}
+              <Link
+                href="/auth/cadastre"
+                className="text-zinc-500 text-xs font-bold underline hover:text-pink-700"
+              >
+                Cadastre-se
+              </Link>
+            </Label>
           </div>
-
-          <div className="flex-1">
-            <UltimasPixIn />
-            <UltimasPixOut />
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

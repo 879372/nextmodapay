@@ -1,3 +1,264 @@
+<<<<<<< HEAD
+'use client'
+import React, { useState, useCallback, useEffect } from 'react';
+import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import Sidebar from '@/components/ui/sidebar';
+import { listPixInByCompany, PixInSearchParams, TransacaoIn } from '@/api/listarPixIn';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import * as XLSX from 'xlsx';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
+import { useRouter } from 'next/navigation';
+import Auth from '@/app/auth/auth';
+import Header from '@/components/ui/hearder';
+
+export default function ExampleComponent() {
+    const [isOpen, setIsOpen] = useState(true);
+    const [transacoes, setTransacoes] = useState<TransacaoIn | null>(null);
+    const [filtroInicio, setFiltroInicio] = useState<string>('');
+    const [filtroFim, setFiltroFim] = useState<string>('');
+    const [filtroCPF, setFiltroCPF] = useState<string>('');
+    const [filtroStatus, setFiltroStatus] = useState<string>('CONCLUIDA');
+    const [paginaAtual, setPaginaAtual] = useState<number>(1);
+    const [itensPorPagina, setItensPorPagina] = useState<number>(10);
+
+    const router = useRouter();
+    Auth();
+
+    const params: PixInSearchParams = {
+        inicio: filtroInicio,
+        fim: filtroFim,
+        cpf: filtroCPF,
+        status: filtroStatus,
+        paginaAtual,
+        itensPorPagina
+    };
+
+    // Atualiza transações com base nos parâmetros
+    const fetchTransacoes = useCallback(async () => {
+        const token = localStorage.getItem('token') || '';
+        try {
+            const data = await listPixInByCompany(params, token);
+            setTransacoes(data); // Atualiza o estado com o objeto TransacaoIn
+        } catch (error) {
+            console.error('Erro ao buscar transações:', error);
+        }
+    }, [params]); // Dependência de params
+
+    useEffect(() => {
+        fetchTransacoes(); // Chama fetchTransacoes sempre que params muda
+    }, [paginaAtual]); // Dependência de fetchTransacoes
+
+    const handleFiltrar = () => {
+        setPaginaAtual(1); // Reseta a página ao filtrar
+        fetchTransacoes()
+    };
+
+    const handlePageChange = (page: number) => {
+        setPaginaAtual(page);
+    };
+
+    const handleNextPage = () => {
+        setPaginaAtual(prev => prev + 1);
+    };
+
+    const handlePreviousPage = () => {
+        setPaginaAtual(prev => Math.max(prev - 1, 1));
+    };
+
+    const exportToExcel = async () => {
+        const token = localStorage.getItem('token') || '';
+        const allTransactions: TransacaoIn['items'] = [];
+
+        const fetchAllTransactions = async (startPage: number) => {
+            try {
+                const data = await listPixInByCompany({ ...params, paginaAtual: startPage }, token);
+                allTransactions.push(...data.items);
+
+                if (data.totalPages > startPage) {
+                    const nextPage = startPage + 1;
+                    await fetchAllTransactions(nextPage);
+                }
+            } catch (error) {
+                console.error(`Erro ao buscar transações da página ${startPage}:`, error);
+            }
+        };
+
+        await fetchAllTransactions(1); // Começa da página 1
+
+        const fileName = 'transacoes.xlsx';
+        const ws = XLSX.utils.json_to_sheet(allTransactions.map((transacao) => ({
+            Descrição: transacao.descricao,
+            'Data Criação': transacao.calendario.criacao,
+            Devedor: transacao.devedor.nome,
+            'CPF Devedor': transacao.devedor.cpf,
+            'Valor Solicitado': transacao.valor.original,
+            Txid: transacao.txid,
+            EndToEndId: transacao.endToEndId,
+            Tipo: transacao.tipo,
+            Status: transacao.status,
+            Pagador: transacao.pagador.nome,
+            'CPF Pagador': transacao.pagador.cpf,
+            'Valor Pago': transacao.pagador.valor,
+            'Data Pagamento': transacao.pagador.data,
+            'Id Devolução': transacao.devolucao.id,
+            'Valor Devolvido': transacao.devolucao.valor,
+            'Status Devolução': transacao.devolucao.status,
+            'Data Devolução': transacao.devolucao.data,
+        })));
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Transações');
+
+        XLSX.writeFile(wb, fileName);
+    };
+
+    return (
+        <div className="flex">
+            <Sidebar isOpen={isOpen} toggleSidebar={() => setIsOpen(!isOpen)} />
+            <div className={`flex-1 transition-all duration-300 ease-in-out ${isOpen ? 'ml-64' : 'ml-0'}`} style={{ width: isOpen ? 'calc(100% - 300px)' : '100%' }}>
+                <div className="flex-col">
+                    <Header titulo="Pix In" />
+                    <div className="p-8">
+                        <Card className="rounded-xl p-5 h-full">
+                            <div className='flex justify-end gap-2 items-center mb-2 flex-wrap'>
+                                <div>
+                                    <Label className='text-xs'>Data Inicio:</Label>
+                                    <Input className='text-xs max-h-8 max-w-[130px]'
+                                        type="date"
+                                        placeholder='Data inicio'
+                                        value={filtroInicio}
+                                        onChange={(e) => setFiltroInicio(e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <Label className='text-xs'>Data Fim:</Label>
+                                    <Input className='text-xs max-h-8 max-w-[130px]'
+                                        type="date"
+                                        placeholder='Data Fim'
+                                        value={filtroFim}
+                                        onChange={(e) => setFiltroFim(e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <Label className='text-xs'>Filtrar CPF:</Label>
+                                    <Input className='text-xs max-h-8 max-w-[130px]'
+                                        type="text"
+                                        placeholder='CPF'
+                                        value={filtroCPF}
+                                        onChange={(e) => setFiltroCPF(e.target.value)}
+                                    />
+                                </div>
+                                <div className='flex flex-col self-end'>
+                                    <Label className='text-xs mb-[1px]'>Filtrar Status:</Label>
+                                    <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)} className='text-xs h-8 p-1 min-w-[130px] border self-end rounded-md'>
+                                        <option value="CONCLUIDA">Concluída</option>
+                                        <option value="CANCELADO">Cancelado</option>
+                                        <option value="ATIVA">Ativa</option>
+                                    </select>
+                                </div>
+
+                                <div className='self-end'>
+                                    <Button className="bg-pink-900 max-h-8 max-w-[130px] rounded text-xs"
+                                        onClick={handleFiltrar}
+                                    >
+                                        Filtrar
+                                    </Button>
+                                </div>
+                                <div className='self-end'>
+                                    <Button className="bg-pink-900 max-h-8 max-w-[130px] rounded text-xs"
+                                        onClick={exportToExcel}
+                                    >
+                                        Exportar
+                                    </Button>
+                                </div>
+                            </div>
+                            <ScrollArea className="h-full whitespace-nowrap">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className=''>Txid</TableHead>
+                                            <TableHead className=''>EndToEndId</TableHead>
+                                            <TableHead className=''>Descrição</TableHead>
+                                            <TableHead className=''>Devedor</TableHead>
+                                            <TableHead className=''>CPF Devedor</TableHead>
+                                            <TableHead className=''>Valor Solicitado</TableHead>
+                                            <TableHead className=''>Tipo</TableHead>
+                                            <TableHead className=''>Status</TableHead>
+                                            <TableHead className=''>Pagador</TableHead>
+                                            <TableHead className=''>CPF Pagador</TableHead>
+                                            <TableHead className=''>Valor Pago</TableHead>
+                                            <TableHead className=''>Data Pagamento</TableHead>
+                                            <TableHead className=''>Id Devolução</TableHead>
+                                            <TableHead className=''>Valor Devolvido</TableHead>
+                                            <TableHead className=''>Status Devolução</TableHead>
+                                            <TableHead className=''>Data Devolução</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {transacoes?.items.map((transacao) => (
+                                            <TableRow key={transacao.txid}>
+                                                <TableCell>{transacao.txid}</TableCell>
+                                                <TableCell>{transacao.endToEndId}</TableCell>
+                                                <TableCell>{transacao.descricao}</TableCell>
+                                                <TableCell>{transacao.devedor.nome}</TableCell>
+                                                <TableCell>{transacao.devedor.cpf}</TableCell>
+                                                <TableCell>{transacao.valor.original}</TableCell>
+                                                <TableCell>{transacao.tipo}</TableCell>
+                                                <TableCell>{transacao.status}</TableCell>
+                                                <TableCell>{transacao.pagador.nome}</TableCell>
+                                                <TableCell>{transacao.pagador.cpf}</TableCell>
+                                                <TableCell>{transacao.pagador.valor}</TableCell>
+                                                <TableCell>{transacao.pagador.data}</TableCell>
+                                                <TableCell>{transacao.devolucao.id}</TableCell>
+                                                <TableCell>{transacao.devolucao.valor}</TableCell>
+                                                <TableCell>{transacao.devolucao.status}</TableCell>
+                                                <TableCell>{transacao.devolucao.data}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                <ScrollBar orientation="horizontal" />
+                            </ScrollArea>
+                            <Pagination>
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious onClick={handlePreviousPage} />
+                                    </PaginationItem>
+                                    {[1, 2, 3].map(page => (
+                                        <PaginationItem key={page}>
+                                            <PaginationLink 
+                                                href="#" 
+                                                onClick={() => handlePageChange(page)}
+                                                className={paginaAtual === page ? 'active' : ''}
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    ))}
+                                    <PaginationItem>
+                                        <PaginationNext onClick={handleNextPage} />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        </Card>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+=======
 'use client'
 import React, { useState, useEffect, ChangeEvent, useCallback } from 'react';
 import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -303,3 +564,4 @@ export default function ExampleComponent() {
         </div>
     );
 };
+>>>>>>> c19ed366fb65f48d4532a2dba833eda2f63bcb5e
