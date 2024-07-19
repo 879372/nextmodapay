@@ -1,17 +1,15 @@
-/* pages/index.module.css */
 
 .background {
-    background-image: url('../public/fudorosa.png'); /* Caminho relativo à pasta public */
-    background-size: cover; /* Ajusta a imagem para cobrir toda a área */
-    background-position: center; /* Centraliza a imagem */
-    height: 100vh; /* Altura da div igual à altura da tela */
+    background-image: url('../public/fudorosa.png');
+    background-size: cover; 
+    background-position: center; 
+    height: 100vh; 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
-/* Adicione estas classes ao seu arquivo CSS */
 .relative {
     position: relative;
   }

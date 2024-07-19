@@ -38,7 +38,6 @@ export default function Home() {
     try {
       const response = await LoginCompany(login);
       const token = response.data.Token;
-      console.log(token)
       localStorage.setItem('token', token);
       router.push('/dashboard');
     } catch (error) {

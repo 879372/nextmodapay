@@ -64,7 +64,12 @@ export interface Login {
         });
         return response
     }catch (error){
-        throw error;
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+            alert(error.response.data.message);
+            console.log(error);
+        }
+    }
     }
   }
 

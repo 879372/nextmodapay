@@ -2,41 +2,55 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import Sidebar from '@/components/ui/sidebar';
-import Header from '@/components/ui/hearder';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { IconEdit } from '@tabler/icons-react';
+import { IconEdit, IconLock } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import ObterDadosEmpresa, { Empresa } from '@/api/obterEmpresa';
 import AtualizarDadosEmpresa from '@/api/atualizarDadosEmpresa';
 import AtualizarSenhaAdm, { Atualizarsenha } from '@/api/atualizarSenha';
 import Auth from '../auth/auth';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import Header from '@/components/ui/hearder';
 
 export default function Profile() {
-    Auth(); // Não está claro o propósito desta linha; presumindo que configure a autenticação.
+    Auth();
 
     const [isOpen, setIsOpen] = useState(true);
+    const [modalOpen, setModalOpen] = useState(false); 
     const [dadosEmpresa, setDadosEmpresa] = useState<Empresa | null>(null);
     const [dadosAlterados, setDadosAlterados] = useState<Empresa | null>(null);
     const [alterarSenha, setAlterarSenha] = useState<Atualizarsenha>({ oldPassword: '', newPassword: '', confirmPassword: '' });
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null); // Estado para armazenar mensagens de erro
-
-
+    const [error, setError] = useState<string | null>(null);
+    const [isSmallScreen, setIsSmallScreen] = useState(false); 
+  
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth <= 768); 
+    };
+  
+    const handleSidebarVisibility = () => {
+      const shouldShowSidebar = window.innerWidth > 768; 
+      setIsOpen(shouldShowSidebar);
+    };
+  
+    useEffect(() => {
+      checkScreenSize(); 
+      handleSidebarVisibility()
+      const handleResize = () => {
+        checkScreenSize(); 
+        handleSidebarVisibility(); 
+      };
+  
+      window.addEventListener('resize', handleResize);
+  
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []); 
+  
     const toggleSidebar = () => {
-        setIsOpen(!isOpen);
+      setIsOpen(!isOpen);
     };
 
     const fetchDadosEmpresa = useCallback(async () => {
@@ -45,7 +59,7 @@ export default function Profile() {
         try {
             const data = await ObterDadosEmpresa(token);
             setDadosEmpresa(data);
-            setDadosAlterados(data); // Inicialmente, os dados alterados são iguais aos dados da empresa
+            setDadosAlterados(data); 
         } catch (error) {
             console.error('Erro ao chamar dados da empresa:', error);
             setError('Erro ao carregar dados da empresa. Por favor, tente novamente mais tarde.');
@@ -64,8 +78,7 @@ export default function Profile() {
 
     const handleCancelClick = () => {
         setIsEditing(false);
-        // Reverter os dados alterados para os dados originais
-        setDadosAlterados(dadosEmpresa);
+        setDadosAlterados(dadosEmpresa); 
     };
 
     const handleSaveClick = async () => {
@@ -73,10 +86,11 @@ export default function Profile() {
         if (dadosAlterados) {
             try {
                 await AtualizarDadosEmpresa(dadosAlterados, token);
-                setDadosEmpresa(dadosAlterados); // Atualizar os dados da empresa com os dados alterados
+                setDadosEmpresa(dadosAlterados); 
                 setIsEditing(false);
             } catch (error) {
                 console.error('Erro ao atualizar dados da empresa:', error);
+                setIsEditing(true); 
                 setError('Erro ao atualizar dados da empresa. Por favor, tente novamente.');
             }
         }
@@ -84,22 +98,34 @@ export default function Profile() {
 
     const handleUpdatePassword = async () => {
         const token = localStorage.getItem('token') || '';
-        setError(null); // Limpar qualquer erro anterior
+        setError(null); 
+
         try {
-            // Verifica se todos os campos de senha estão preenchidos
             if (alterarSenha.oldPassword && alterarSenha.newPassword && alterarSenha.confirmPassword) {
-                const response = await AtualizarSenhaAdm(alterarSenha, token);
-                if(response === undefined){
-                    setError('Erro ao atualizada senha!');
-                }else if (alterarSenha.oldPassword === alterarSenha.newPassword) {
-                    setError('A senha nova não pode ser igual a senha atual!');
-                }else if (alterarSenha.newPassword !== alterarSenha.confirmPassword) {
-                    setError('Erro ao confirmar senha!');
-                }else if(alterarSenha.newPassword === alterarSenha.confirmPassword && length < 8){
-                    setError('A senha deve ter no mínimo 8 caracteres sendo pelo menos uma letra maiuscula um número e um caractere especial @ .! # $')
-                }else{
-                    alert("Senha atualizada com sucesso!")
+                if (alterarSenha.oldPassword === alterarSenha.newPassword) {
+                    setError('A senha nova não pode ser igual à senha atual!');
+                    return;
                 }
+
+                if (alterarSenha.newPassword !== alterarSenha.confirmPassword) {
+                    setError('A senha nova não pode ser confirmada!');
+                    return;
+                }
+
+                if (alterarSenha.newPassword !== alterarSenha.confirmPassword) {
+                    setError('Erro ao confirmar senha!');
+                    return;
+                }
+                const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@.$!#]).{8,}$/;
+                if (!passwordRegex.test(alterarSenha.newPassword)) {
+                    setError('A senha deve ter no mínimo 8 caracteres, sendo pelo menos uma letra maiúscula, um número e um dos caracteres especiais @ . ! # $');
+                    return;
+                }
+
+                await AtualizarSenhaAdm(alterarSenha, token);
+                alert("Senha atualizada com sucesso!");
+                setModalOpen(false); 
+                setAlterarSenha({ oldPassword: '', newPassword: '', confirmPassword: '' }); 
             } else {
                 setError('Todos os campos de senha são obrigatórios.');
             }
@@ -113,7 +139,7 @@ export default function Profile() {
         if (dadosAlterados) {
             setDadosAlterados({
                 ...dadosAlterados,
-                [key]: e.target.value
+                [key]: e.target.value,
             });
         }
     };
@@ -121,69 +147,39 @@ export default function Profile() {
     return (
         <div className="flex">
             <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
-            <div className={`flex-1 transition-all duration-300 ease-in-out ${isOpen ? 'ml-64 ' : 'ml-0'}`} style={{ width: isOpen ? 'calc(100% - 300px)' : '100%' }}>
-                <div className="flex-col">
-                    <Header titulo="Configurações" />
+            <div className={`flex-1 transition-margin duration-300 ease-in-out ${isSmallScreen ? 'ml-0' : (isOpen ? 'ml-64' : 'ml-0')}`} style={{ width: isOpen ? 'calc(100% - 256px)' : '100%' }}>
+            <Header titulo="Configurações" isOpen={isOpen} toggleSidebar={toggleSidebar} />
+            <div className="flex-col mt-20">
                     <div className="p-8">
                         <Card className="rounded-xl p-5">
-                            <div className='flex justify-between mb-4'>
-                                <h1 className='text-xl font-bold'>Informações Cadastrais</h1>
-                                <div className='flex gap-3'>
+                            <div className="flex justify-between mb-4">
+                                <h1 className="text-xl font-bold">Informações Cadastrais</h1>
+                                <div className="flex gap-3">
                                     {isEditing ? (
                                         <>
-                                            <Button onClick={handleSaveClick} className='bg-zinc-700'>Salvar</Button>
-                                            <Button onClick={handleCancelClick} className='bg-red-600'>Cancelar</Button>
+                                            <Button onClick={handleSaveClick} className="bg-zinc-700">
+                                                Salvar
+                                            </Button>
+                                            <Button onClick={handleCancelClick} className="bg-red-600">
+                                                Cancelar
+                                            </Button>
                                         </>
                                     ) : (
-                                        <>
-                                            <Button onClick={handleEditClick} variant="secondary" className='flex items-center border rounded-md Button'>
-                                                <IconEdit className='mr-1' />
+                                        <div className='flex flex-wrap gap-2 justify-end'>
+                                        <div className='relative '>
+                                            <Button onClick={handleEditClick} className="bg-pink-900  pl-8">
                                                 Editar
                                             </Button>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger className=' p-1 flex items-center border rounded-md Button bg-secondary text-secondary-foreground hover:bg-secondary/80'> Atualizar senha</AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Atualização de senha</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            <div className='flex flex-col gap-2 mt-5'>
-                                                                <div>
-                                                                    <Label>Senha atual</Label>
-                                                                    <Input
-                                                                        type='password'
-                                                                        value={alterarSenha.oldPassword}
-                                                                        onChange={(e) => setAlterarSenha({ ...alterarSenha, oldPassword: e.target.value })}
-                                                                        placeholder='Digite sua senha atual' />
-                                                                </div>
-                                                                <div>
-                                                                    <Label>Nova senha</Label>
-                                                                    <Input
-                                                                        type='password'
-                                                                        value={alterarSenha.newPassword}
-                                                                        onChange={(e) => setAlterarSenha({ ...alterarSenha, newPassword: e.target.value })}
-                                                                        placeholder='Digite sua nova senha' />
-                                                                </div>
-                                                                <div>
-                                                                    <Label>Confirme sua senha</Label>
-                                                                    <Input
-                                                                        type='password'
-                                                                        value={alterarSenha.confirmPassword}
-                                                                        onChange={(e) => setAlterarSenha({ ...alterarSenha, confirmPassword: e.target.value })}
-                                                                        placeholder='Confirme sua nova senha' />
-                                                                </div>
-                                                            </div>
-                                                            {error && <Label className='text-red-500'>{error}</Label>}
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                        <Button onClick={handleUpdatePassword}>Salvar</Button>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </>
+                                            <IconEdit className="absolute left-1 top-1/2 transform -translate-y-1/2 text-white" />
+                                        </div>
+                                        <div className='relative'>
+                                            <Button onClick={() => setModalOpen(true)} className=" bg-pink-900   pl-8">
+                                                Atualizar senha
+                                            </Button>
+                                            <IconLock className="absolute left-1 top-1/2 transform -translate-y-1/2 text-white" />
+                                        </div>
+                                    </div>
                                     )}
-
                                 </div>
                             </div>
 
@@ -193,15 +189,12 @@ export default function Profile() {
                                 <>
                                     {dadosEmpresa && (
                                         <div>
-                                            <div className='mb-6'>
-                                                <h2 className='text-lg font-semibold mb-2'>Empresa:</h2>
-                                                <div className='grid grid-cols-3 gap-3'>
+                                            <div className="mb-6">
+                                                <h2 className="text-lg font-semibold mb-2">Empresa:</h2>
+                                                <div className="grid grid-cols-3 gap-3">
                                                     <div>
                                                         <Label>Nome</Label>
-                                                        <Input
-                                                            disabled
-                                                            value={dadosAlterados?.name || ''}
-                                                        />
+                                                        <Input disabled value={dadosAlterados?.name || ''} />
                                                     </div>
                                                     <div>
                                                         <Label>E-mail</Label>
@@ -247,8 +240,8 @@ export default function Profile() {
                                             </div>
 
                                             <div>
-                                                <h2 className='text-lg font-semibold mb-2'>Endereço:</h2>
-                                                <div className='grid grid-cols-2 gap-4'>
+                                                <h2 className="text-lg font-semibold mb-2">Endereço:</h2>
+                                                <div className="grid grid-cols-2 gap-4">
                                                     <div>
                                                         <Label>Logradouro</Label>
                                                         <Input
@@ -309,48 +302,31 @@ export default function Profile() {
                                             </div>
 
                                             <div>
-                                                <h2 className='text-lg font-semibold mb-2 mt-5'>Taxas:</h2>
-                                                <div className='grid grid-cols-2 gap-4'>
+                                                <h2 className="text-lg font-semibold mb-2 mt-5">Taxas:</h2>
+                                                <div className="grid grid-cols-2 gap-4">
                                                     <div>
                                                         <Label>typeFee</Label>
-                                                        <Input
-                                                            disabled
-                                                            value={dadosAlterados?.typeFee || ''}
-                                                        />
+                                                        <Input disabled value={dadosAlterados?.typeFee || ''} />
                                                     </div>
                                                     <div>
                                                         <Label>valueFee</Label>
-                                                        <Input
-                                                            disabled
-                                                            value={dadosAlterados?.valueFee || ''}                                                        />
+                                                        <Input disabled value={dadosAlterados?.valueFee || ''} />
                                                     </div>
                                                     <div>
                                                         <Label>partnerTypeFee</Label>
-                                                        <Input
-                                                            disabled
-                                                            value={dadosAlterados?.partnerTypeFee || ''}
-                                                        />
+                                                        <Input disabled value={dadosAlterados?.partnerTypeFee || ''} />
                                                     </div>
                                                     <div>
                                                         <Label>partnerValueFee</Label>
-                                                        <Input
-                                                            disabled
-                                                            value={dadosAlterados?.partnerValueFee || ''}
-                                                        />
+                                                        <Input disabled value={dadosAlterados?.partnerValueFee || ''} />
                                                     </div>
                                                     <div>
                                                         <Label>totalFee</Label>
-                                                        <Input
-                                                            disabled
-                                                            value={dadosAlterados?.totalFee || ''}
-                                                        />
+                                                        <Input disabled value={dadosAlterados?.totalFee || ''} />
                                                     </div>
                                                     <div>
                                                         <Label>status</Label>
-                                                        <Input
-                                                            disabled
-                                                            value={dadosAlterados?.status || ''}
-                                                        />
+                                                        <Input disabled value={dadosAlterados?.status || ''} />
                                                     </div>
                                                 </div>
                                             </div>
@@ -362,6 +338,79 @@ export default function Profile() {
                     </div>
                 </div>
             </div>
+
+            {/* Modal para atualização de senha */}
+            {modalOpen && (
+                <div className="fixed z-10 inset-0 overflow-y-auto">
+                    <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                            <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                        </div>
+
+                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                <div className="">
+                                    <div className='flex items-center gap-2'>
+                                        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-pink-100 sm:mx-0 sm:h-10 sm:w-10">
+                                            <IconLock className="h-6 w-6 text-pink-600" aria-hidden="true" />
+                                        </div>
+                                        <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                            Atualização de senha
+                                        </h3>
+                                    </div>
+                                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                        <div className="mt-5">
+                                            <div className="flex flex-col gap-2">
+                                                <div>
+                                                    <Label>Senha atual</Label>
+                                                    <Input
+                                                        type="password"
+                                                        value={alterarSenha.oldPassword}
+                                                        onChange={(e) => setAlterarSenha({ ...alterarSenha, oldPassword: e.target.value })}
+                                                        placeholder="Digite sua senha atual"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Nova senha</Label>
+                                                    <Input
+                                                        type="password"
+                                                        value={alterarSenha.newPassword}
+                                                        onChange={(e) => setAlterarSenha({ ...alterarSenha, newPassword: e.target.value })}
+                                                        placeholder="Digite sua nova senha"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Confirme sua senha</Label>
+                                                    <Input
+                                                        type="password"
+                                                        value={alterarSenha.confirmPassword}
+                                                        onChange={(e) => setAlterarSenha({ ...alterarSenha, confirmPassword: e.target.value })}
+                                                        placeholder="Confirme sua nova senha"
+                                                    />
+                                                </div>
+                                            </div>
+                                            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                <Button onClick={handleUpdatePassword} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-pink-900 text-base font-medium text-white hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-100 sm:ml-3 sm:w-auto sm:text-sm">
+                                    Salvar
+                                </Button>
+                                <Button
+                                    onClick={() => setModalOpen(false)} 
+                                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                >
+                                    Cancelar
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

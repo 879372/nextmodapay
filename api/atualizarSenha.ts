@@ -15,15 +15,18 @@ const AtualizarSenhaAdm = async (params: Atualizarsenha, token: string): Promise
                 'Content-Type': 'application/json'
             }
         });
-        alert(response.data)
         if (response.status === 204) {
-            alert(response.data)
             return response.data as Atualizarsenha;
         } else {
             console.error(response.data);
         }
     } catch (error) {
-        console.error(error);
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                alert(error.response.data.message);
+                console.log(error);
+            }
+        }
     }
     return undefined; // Return something appropriate in case of error or unexpected status
 };

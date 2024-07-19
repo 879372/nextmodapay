@@ -1,11 +1,10 @@
 'use client'
-import React, { PureComponent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
+import { listPixInByCompany, TransacaoIn } from '@/api/listarPixIn';
+import { listPixOutByCompany, TransacaoOut } from '@/api/listarPixOut';
 
-const data = [
-  { name: 'Active Clients', value: 400, fill: '#11CE8A' },
-  { name: 'Inactive Clients', value: 300, fill: '#FD0000' },
-];
+const currentYear = new Date().getFullYear();
 
 const renderActiveShape = (props: any) => {
   const RADIAN = Math.PI / 180;
@@ -53,38 +52,59 @@ const renderActiveShape = (props: any) => {
   );
 };
 
-export default class Example2 extends PureComponent {
-  static demoUrl = 'https://codesandbox.io/s/pie-chart-with-customized-active-shape-y93si';
+const PieChartExample = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [startDate, setStartDate] = useState<Date | undefined>(new Date(`${currentYear}-01-01`));
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date(`${currentYear}-12-31`));
+  const [data, setData] = useState<{ name: string; value: number; fill: string }[]>([]);
 
-  state = {
-    activeIndex: 0,
+  useEffect(() => {
+    fetchData();
+  }, [startDate, endDate]);
+
+  const fetchData = async () => {
+    try {
+      const formattedStartDate = startDate ? startDate.toISOString() : undefined;
+      const formattedEndDate = endDate ? endDate.toISOString() : undefined;
+
+      const token = localStorage.getItem('token') || '';
+
+      const [pixInResponse, pixOutResponse] = await Promise.all([
+        listPixInByCompany({ inicio: formattedStartDate, fim: formattedEndDate, status: 'CONCLUIDA', itensPorPagina: 600 }, token),
+        listPixOutByCompany({ inicio: formattedStartDate, fim: formattedEndDate, status: 'executed', itensPorPagina: 600 }, token)
+      ]);
+
+      const pixInCount = pixInResponse.items.length;
+      const pixOutCount = pixOutResponse.items.length;
+
+      setData([
+        { name: 'PIX IN', value: pixInCount, fill: '#11CE8A' },
+        { name: 'PIX OUT', value: pixOutCount, fill: '#FD0000' }
+      ]);
+
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    }
   };
 
-  onPieEnter = (_: any, index: any) => {
-    this.setState({
-      activeIndex: index,
-    });
-  };
-
-  render() {
-    return (
-
-      <ResponsiveContainer width="100%" height="100%" className="min-w-52">
-        <PieChart width={600} height={600}>
+  return (
+    <div style={{ width: '100%', height: 300 }}>
+      <ResponsiveContainer>
+        <PieChart>
           <Pie
-            activeIndex={this.state.activeIndex}
+            activeIndex={activeIndex}
             activeShape={renderActiveShape}
             data={data}
-            cx="50%"
-            cy="50%"
             innerRadius={60}
             outerRadius={80}
+            fill="#8884d8"
             dataKey="value"
-            onMouseEnter={this.onPieEnter}
+            onMouseEnter={(_, index) => setActiveIndex(index)}
           />
         </PieChart>
       </ResponsiveContainer>
+    </div>
+  );
+};
 
-    );
-  }
-}
+export default PieChartExample;

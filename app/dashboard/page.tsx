@@ -1,65 +1,58 @@
 'use client'
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/ui/hearder";
 import { Card } from "@/components/ui/card";
-import { ArrowDown, CreditCard, DollarSignIcon } from "lucide-react";
 import Example from "../../components/ui/grafico";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import Example2 from "@/components/ui/graficoDePizza";
 import Sidebar from "@/components/ui/sidebar";
 import Cabecalho from "@/components/ui/cabecalho";
 import UltimasPixIn from "@/components/ui/ultimasPixIn";
 import UltimasPixOut from "@/components/ui/ultimasPixOut";
 import Auth from "../auth/auth";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import Header from "@/components/ui/hearder";
 
 export default function Home() {
-  const [isOpen, setIsOpen] = useState(true);
+  Auth();
+  const [isOpen, setIsOpen] = useState(true); 
+  const [isSmallScreen, setIsSmallScreen] = useState(false); 
   const router = useRouter();
 
-  // Function to handle sidebar visibility based on window width
+  const checkScreenSize = () => {
+    setIsSmallScreen(window.innerWidth <= 768); 
+  };
+
   const handleSidebarVisibility = () => {
-    const shouldShowSidebar = window.innerWidth > 768; // Example threshold for large screens
+    const shouldShowSidebar = window.innerWidth > 768; 
     setIsOpen(shouldShowSidebar);
   };
 
-  // Effect to set sidebar visibility on component mount and window resize
   useEffect(() => {
-    handleSidebarVisibility(); // Set initial sidebar visibility
-
+    checkScreenSize(); 
+    handleSidebarVisibility()
     const handleResize = () => {
-      handleSidebarVisibility(); // Update sidebar visibility on window resize
+      checkScreenSize(); 
+      handleSidebarVisibility(); 
     };
 
     window.addEventListener('resize', handleResize);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      
     };
-  }, []); // Empty dependency array ensures this effect runs only once on mount
+  }, []); 
 
-  // Toggle sidebar visibility
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
-  // Perform authentication logic
-  Auth();
 
   return (
     <div className="flex">
       <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
-      <div className={`flex-1 transition-margin duration-300 ease-in-out ${isOpen ? 'ml-64' : 'ml-0'}`} style={{ width: isOpen ? 'calc(100% - 300px)' : '100%' }}>
-        <div className="flex-col">
-          <Header titulo="Dashboard" />
+      <div className={`flex-1 transition-margin duration-300 ease-in-out ${isSmallScreen ? 'ml-0' : (isOpen ? 'ml-64' : 'ml-0')}`} style={{ width: isOpen ? 'calc(100% - 256px)' : '100%' }}>
+      <Header titulo="Dashboard" isOpen={isOpen} toggleSidebar={toggleSidebar} />
+        <div className="flex-col mt-28">
           <Cabecalho />
           <div className="flex mt-5 flex-wrap gap-4 ml-6 mr-6 flex-1">
             <Card className="flex-1 rounded-xl max-h-96 p-5 pb-20">

@@ -9,27 +9,50 @@ export default function UltimasPixIn() {
     const [transacoes, setTransacoes] = useState<TransacaoIn['items']>([]);
     const [filtroInicio, setFiltroInicio] = useState<string>('');
     const [filtroFim, setFiltroFim] = useState<string>('');
+    const [paginaAtual, setPaginaAtual] = useState<number>(0);
+    const [itensPorPagina, setItensPorPagina] = useState<number>(10);
+    const [semTransacoes, setSemTransacoes] = useState<boolean>(false); // Estado para controlar se não há transações
 
     useEffect(() => {
+        // Função para obter o primeiro e último dia do mês atual
+        const getFirstAndLastDayOfMonth = () => {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            return {
+                firstDay: firstDay.toISOString().split('T')[0], // Formato YYYY-MM-DD
+                lastDay: lastDay.toISOString().split('T')[0], // Formato YYYY-MM-DD
+            };
+        };
+
         const fetchTransacoes = async () => {
             const token = localStorage.getItem('token') || '';
+            const { firstDay, lastDay } = getFirstAndLastDayOfMonth();
+            setFiltroInicio(firstDay);
+            setFiltroFim(lastDay);
+
             const params: PixInSearchParams = {
-                inicio: filtroInicio,
-                fim: filtroFim,
+                inicio: firstDay,
+                fim: lastDay,
                 status: 'CONCLUIDO',
+                paginaAtual,
+                itensPorPagina
             };
+
             try {
                 const data = await listPixInByCompany(params, token);
                 // Ordenar as transações pela data de criação de forma descendente
                 const sortedData = data.items.sort((a, b) => new Date(b.calendario.criacao).getTime() - new Date(a.calendario.criacao).getTime());
                 setTransacoes(sortedData);
+                // Verificar se não há transações
+                setSemTransacoes(sortedData.length === 0);
             } catch (error) {
                 console.error('Erro ao buscar transações:', error);
             }
         };
 
         fetchTransacoes();
-    }, [filtroInicio, filtroFim]);
+    }, []); // Array vazio indica que o useEffect será executado apenas uma vez ao carregar o componente
 
     return (
         <Card className="flex-1 rounded-xl h-96 p-5 pb-14 ml-6 mr-6 mt-5">
@@ -41,51 +64,53 @@ export default function UltimasPixIn() {
                 <Table>
                     <TableHeader className='sticky top-0 z-10'>
                         <TableRow>
-                            {/* Cabeçalhos da tabela */}
-                            <TableHead className='text-center'>Chave</TableHead>
-                            <TableHead className='text-center'>Descrição</TableHead>
-                            <TableHead className='text-center'>Data Criação</TableHead>
-                            <TableHead className='text-center'>Devedor</TableHead>
-                            <TableHead className='text-center'>CPF Devedor</TableHead>
-                            <TableHead className='text-center'>Valor Solicitado</TableHead>
-                            <TableHead className='text-center'>Txid</TableHead>
-                            <TableHead className='text-center'>EndToEndId</TableHead>
-                            <TableHead className='text-center'>Tipo</TableHead>
-                            <TableHead className='text-center'>Status</TableHead>
-                            <TableHead className='text-center'>Pagador</TableHead>
-                            <TableHead className='text-center'>CPF Pagador</TableHead>
-                            <TableHead className='text-center'>Valor Pago</TableHead>
-                            <TableHead className='text-center'>Data Pagamento</TableHead>
-                            <TableHead className='text-center'>Id Devolução</TableHead>
-                            <TableHead className='text-center'>Valor Devolvido</TableHead>
-                            <TableHead className='text-center'>Status Devolução</TableHead>
-                            <TableHead className='text-center'>Data Devolução</TableHead>
+                            <TableHead className=''>Txid</TableHead>
+                            <TableHead className=''>EndToEndId</TableHead>
+                            <TableHead className=''>Descrição</TableHead>
+                            <TableHead className=''>Devedor</TableHead>
+                            <TableHead className=''>CPF Devedor</TableHead>
+                            <TableHead className=''>Valor Solicitado</TableHead>
+                            <TableHead className=''>Valor Pago</TableHead>
+                            <TableHead className=''>Status</TableHead>
+                            <TableHead className=''>Pagador</TableHead>
+                            <TableHead className=''>Data Pagamento</TableHead>
+                            <TableHead className=''>CPF Pagador</TableHead>
+                            <TableHead className=''>Valor Devolvido</TableHead>
+                            <TableHead className=''>Id Devolução</TableHead>
+                            <TableHead className=''>Status Devolução</TableHead>
+                            <TableHead className=''>Data Devolução</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {transacoes.map((transacao, index) => (
-                            <TableRow key={index} className='text-center'>
-                                {/* Células da tabela */}
-                                <TableCell>{transacao.chave}</TableCell>
-                                <TableCell>{transacao.descricao}</TableCell>
-                                <TableCell>{transacao.calendario.criacao}</TableCell>
-                                <TableCell>{transacao.devedor.nome}</TableCell>
-                                <TableCell>{transacao.devedor.cpf}</TableCell>
-                                <TableCell>{`R$ ${(transacao.valor?.original ?? 0).toFixed(2)}`}</TableCell>
-                                <TableCell>{transacao.txid}</TableCell>
-                                <TableCell>{transacao.endToEndId}</TableCell>
-                                <TableCell>{transacao.tipo}</TableCell>
-                                <TableCell>{transacao.status}</TableCell>
-                                <TableCell>{transacao.pagador?.nome || 'N/A'}</TableCell>
-                                <TableCell>{transacao.pagador?.cpf || 'N/A'}</TableCell>
-                                <TableCell>{`R$ ${(transacao.pagador?.valor ?? 0).toFixed(2)}`}</TableCell>
-                                <TableCell>{transacao.pagador?.data || 'N/A'}</TableCell>
-                                <TableCell>{transacao.devolucao?.id || 'N/A'}</TableCell>
-                                <TableCell>{`R$ ${(transacao.devolucao?.valor ?? 0).toFixed(2)}`}</TableCell>
-                                <TableCell>{transacao.devolucao?.status || 'N/A'}</TableCell>
-                                <TableCell>{transacao.devolucao?.data || 'N/A'}</TableCell>
+                        {semTransacoes ? (
+                            <TableRow>
+                                <TableCell colSpan={15} className="text-center">Ainda não houve transações esse mês</TableCell>
                             </TableRow>
-                        ))}
+                        ) : (
+                            transacoes.map((transacao, index) => (
+                                <TableRow key={transacao.txid}>
+                                    <TableCell>{transacao.txid || '-'}</TableCell>
+                                    <TableCell>{transacao.endToEndId || '-'}</TableCell>
+                                    <TableCell>{transacao.descricao || '-'}</TableCell>
+                                    <TableCell>{transacao.devedor.nome || '-'}</TableCell>
+                                    <TableCell>{transacao.devedor.cpf || '-'}</TableCell>
+                                    <TableCell className='text-right'>{`R$ ${transacao.valor.original ? parseFloat(String(transacao.valor.original)).toFixed(2) : '-'}`}</TableCell>
+                                    <TableCell className='text-right'>{`R$ ${transacao.pagador.valor ? parseFloat(String(transacao.pagador.valor)).toFixed(2) : '-'}`}</TableCell>
+                                    <TableCell>{
+                                        (transacao.status === 'CONCLUIDA' ? <span className='text-green-500'>{transacao.status}</span> :
+                                            (transacao.status === 'CANCELADO' ? <span className='text-red-500'>{transacao.status}</span> :
+                                                transacao.status)
+                                        )}</TableCell>
+                                    <TableCell>{transacao.pagador.nome || '-'}</TableCell>
+                                    <TableCell>{transacao.pagador.data ? new Date(transacao.pagador.data).toLocaleDateString() : '-'}</TableCell>
+                                    <TableCell>{transacao.pagador.cpf || '-'}</TableCell>
+                                    <TableCell className='text-right'>{`R$ ${transacao.devolucao.valor ? parseFloat(String(transacao.devolucao.valor)).toFixed(2) : '-'}`}</TableCell>
+                                    <TableCell>{transacao.devolucao.id || '-'}</TableCell>
+                                    <TableCell>{transacao.devolucao.status || '-'}</TableCell>
+                                    <TableCell>{transacao.devolucao.data ? new Date(transacao.devolucao.data).toLocaleDateString() : '-'}</TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
                 <ScrollBar orientation="horizontal" />

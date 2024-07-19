@@ -51,7 +51,6 @@ export interface PixInSearchParams {
 
 export const listPixInByCompany = async (params: PixInSearchParams, token: string): Promise<TransacaoIn> => {
   const { inicio, fim, cpf, status, paginaAtual, itensPorPagina } = params;
-  console.log("Parâmetros da requisição:", { inicio, fim, paginaAtual, itensPorPagina });
   try {
     const response = await axios.get(`${API_BASE_URL}api/adm/pix-in/`, {
       headers: {

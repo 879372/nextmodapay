@@ -31,8 +31,12 @@ const AtualizarDadosEmpresa = async (params: AtualizarEmpresa, token: string): P
             console.error('Resposta inesperada:', response.status);
         }
     } catch (error) {
-        console.error('Erro ao atualizar dados da empresa:', error);
-
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                alert(error.response.data.message);
+                console.log(error);
+            }
+        }
     }
 };
 
