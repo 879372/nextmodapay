@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { API_BASE_URL } from "./cadastro";
+import { API_BASE_URL } from "./cadastroEmpresa";
 import axios from "axios";
 
 interface Balanco {

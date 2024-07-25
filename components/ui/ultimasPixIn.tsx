@@ -11,17 +11,16 @@ export default function UltimasPixIn() {
     const [filtroFim, setFiltroFim] = useState<string>('');
     const [paginaAtual, setPaginaAtual] = useState<number>(0);
     const [itensPorPagina, setItensPorPagina] = useState<number>(10);
-    const [semTransacoes, setSemTransacoes] = useState<boolean>(false); // Estado para controlar se não há transações
+    const [semTransacoes, setSemTransacoes] = useState<boolean>(false);
 
     useEffect(() => {
-        // Função para obter o primeiro e último dia do mês atual
         const getFirstAndLastDayOfMonth = () => {
             const now = new Date();
             const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
             const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
             return {
-                firstDay: firstDay.toISOString().split('T')[0], // Formato YYYY-MM-DD
-                lastDay: lastDay.toISOString().split('T')[0], // Formato YYYY-MM-DD
+                firstDay: firstDay.toISOString().split('T')[0],
+                lastDay: lastDay.toISOString().split('T')[0],
             };
         };
 
@@ -41,10 +40,8 @@ export default function UltimasPixIn() {
 
             try {
                 const data = await listPixInByCompany(params, token);
-                // Ordenar as transações pela data de criação de forma descendente
                 const sortedData = data.items.sort((a, b) => new Date(b.calendario.criacao).getTime() - new Date(a.calendario.criacao).getTime());
                 setTransacoes(sortedData);
-                // Verificar se não há transações
                 setSemTransacoes(sortedData.length === 0);
             } catch (error) {
                 console.error('Erro ao buscar transações:', error);
@@ -52,7 +49,7 @@ export default function UltimasPixIn() {
         };
 
         fetchTransacoes();
-    }, []); // Array vazio indica que o useEffect será executado apenas uma vez ao carregar o componente
+    }, []); 
 
     return (
         <Card className="flex-1 rounded-xl h-96 p-5 pb-14 ml-6 mr-6 mt-5">

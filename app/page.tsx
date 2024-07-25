@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import Link from "next/link";
-import { Login, LoginCompany } from "@/api/cadastro";
+import { Login, LoginCompany } from "@/api/cadastroEmpresa";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from './index.module.css'; 

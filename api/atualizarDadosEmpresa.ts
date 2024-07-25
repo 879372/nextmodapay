@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL } from "./cadastro";
+import { API_BASE_URL } from "./cadastroEmpresa";
 
 export interface AtualizarEmpresa {
     email: string;

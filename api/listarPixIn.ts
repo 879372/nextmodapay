@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./cadastro";
+import { API_BASE_URL } from "./cadastroEmpresa";
 import axios from 'axios';
 
 // Corrigir a interface para refletir a estrutura dos dados

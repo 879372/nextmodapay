@@ -11,17 +11,16 @@ export default function UltimasPixOut() {
     const [filtroFim, setFiltroFim] = useState<string>('');
     const [paginaAtual, setPaginaAtual] = useState<number>(0);
     const [itensPorPagina, setItensPorPagina] = useState<number>(10);
-    const [semTransacoes, setSemTransacoes] = useState<boolean>(false); // Estado para controlar se não há transações
+    const [semTransacoes, setSemTransacoes] = useState<boolean>(false); 
 
     useEffect(() => {
-        // Função para obter o primeiro e último dia do mês atual
         const getFirstAndLastDayOfMonth = () => {
             const now = new Date();
             const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
             const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
             return {
-                firstDay: firstDay.toISOString().split('T')[0], // Formato YYYY-MM-DD
-                lastDay: lastDay.toISOString().split('T')[0], // Formato YYYY-MM-DD
+                firstDay: firstDay.toISOString().split('T')[0],
+                lastDay: lastDay.toISOString().split('T')[0],
             };
         };
 
@@ -41,10 +40,8 @@ export default function UltimasPixOut() {
 
             try {
                 const data = await listPixOutByCompany(params, token);
-                // Ordenar as transações pela data de solicitação de forma descendente
                 const sortedData = data.items.sort((a, b) => new Date(b.solicitacao).getTime() - new Date(a.solicitacao).getTime());
                 setTransacoes(sortedData);
-                // Verificar se não há transações
                 setSemTransacoes(sortedData.length === 0);
             } catch (error) {
                 console.error('Erro ao buscar transações:', error);
@@ -64,7 +61,6 @@ export default function UltimasPixOut() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            {/* Cabeçalhos da tabela */}
                             <TableHead className=''>Id Transação</TableHead>
                             <TableHead className=''>EndToEndId</TableHead>
                             <TableHead className=''>Chave</TableHead>
@@ -87,7 +83,6 @@ export default function UltimasPixOut() {
                         ) : (
                             transacoes.map((transacao, index) => (
                                 <TableRow key={index}>
-                                    {/* Células da tabela */}
                                     <TableCell>{transacao.idTrasacao || '-'}</TableCell>
                                     <TableCell>{transacao.endToEndId || '-'}</TableCell>
                                     <TableCell>{transacao.chave || '-'}</TableCell>
@@ -102,7 +97,7 @@ export default function UltimasPixOut() {
                                         ) : transacao.status === 'CANCELADA' ? (
                                             <span className='text-red-500'>{transacao.status}</span>
                                         ) : (
-                                            transacao.status // Caso não corresponda aos casos anteriores, mostra o status normalmente
+                                            transacao.status 
                                         )}
                                     </TableCell>
                                     <TableCell>{transacao.recebedor.nome || '-'}</TableCell>

@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import Link from "next/link";
-import { registerCompany, Company } from '@/api/cadastro';
+import { registerCompany, Company } from '@/api/cadastroEmpresa';
 import { useRouter } from "next/navigation";
 import InputMask from "react-input-mask";
 import styles from '../../index.module.css';
@@ -134,7 +134,6 @@ export default function Home() {
             if (!company.user.uf) newErrors['user.uf'] = "Telefone é obrigatório.";
         }
 
-        //     // Add other validation checks for other card steps
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -159,7 +158,7 @@ export default function Home() {
                     router.push('/');
                 }
             } catch (error) {
-                alert(error)
+                alert('Erro ao cadastrar empresa, tente novamente mais tarde!')
                 console.error(error)
             }
         }

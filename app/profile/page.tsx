@@ -4,53 +4,124 @@ import { Card } from '@/components/ui/card';
 import Sidebar from '@/components/ui/sidebar';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { IconEdit, IconLock } from '@tabler/icons-react';
+import { IconDotsVertical, IconEdit, IconLock } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import ObterDadosEmpresa, { Empresa } from '@/api/obterEmpresa';
 import AtualizarDadosEmpresa from '@/api/atualizarDadosEmpresa';
 import AtualizarSenhaAdm, { Atualizarsenha } from '@/api/atualizarSenha';
 import Auth from '../auth/auth';
 import Header from '@/components/ui/hearder';
+import { buscarUserId, UserId } from '@/api/buscarUserPorId';
+import { AtualizarUser, Useratualizar } from '@/api/atualizarUser';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@radix-ui/react-dropdown-menu';
+import Link from 'next/link';
+import { AdicionarIp, AdicionarIpAcesso } from '@/api/adicionarIp';
+import { deleteIp, removerIpParams } from '@/api/removerIp';
+import { Credenciais, ListarCredenciais } from '@/api/listarCredenciais';
 
 export default function Profile() {
     Auth();
-
     const [isOpen, setIsOpen] = useState(true);
-    const [modalOpen, setModalOpen] = useState(false); 
+    const [modalOpen, setModalOpen] = useState(false);
     const [dadosEmpresa, setDadosEmpresa] = useState<Empresa | null>(null);
     const [dadosAlterados, setDadosAlterados] = useState<Empresa | null>(null);
+    const [obterDadosUser, setObterDadosUser] = useState<UserId | undefined>();
+    const [atualizarUser, setAtualizarUser] = useState<AtualizarUser | undefined>();
     const [alterarSenha, setAlterarSenha] = useState<Atualizarsenha>({ oldPassword: '', newPassword: '', confirmPassword: '' });
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [isSmallScreen, setIsSmallScreen] = useState(false); 
-  
-    const checkScreenSize = () => {
-      setIsSmallScreen(window.innerWidth <= 768); 
-    };
-  
-    const handleSidebarVisibility = () => {
-      const shouldShowSidebar = window.innerWidth > 768; 
-      setIsOpen(shouldShowSidebar);
-    };
-  
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
+    const [activeTab, setActiveTab] = useState('empresa');
+    const [ip, setIp] = useState<AdicionarIp>({ companyId: '', ip: '' });
+    const [removerIp, setRemoverIp] = useState<removerIpParams>({ companyId: '', ip: '' });
+    const [dadosCredenciais, setDadosCredenciais] = useState<Credenciais | null>(null);
+
+
+    const fecthBuscarCredenciais = useCallback(async () => {
+        const token = localStorage.getItem('token') || '';
+        try {
+            const data = await ListarCredenciais(token);
+            setDadosCredenciais(data)
+            console.log(data)
+        } catch (error) {
+            console.error(error)
+        }
+    }, [])
+
     useEffect(() => {
-      checkScreenSize(); 
-      handleSidebarVisibility()
-      const handleResize = () => {
-        checkScreenSize(); 
-        handleSidebarVisibility(); 
-      };
-  
-      window.addEventListener('resize', handleResize);
-  
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    }, []); 
-  
+        fecthBuscarCredenciais();
+    }, [fecthBuscarCredenciais]);
+
+    const fectDadosUser = useCallback(async () => {
+        const token = localStorage.getItem('token') || '';
+        try {
+            const data = await buscarUserId(token);
+            setObterDadosUser(data);
+
+            setAtualizarUser(data as AtualizarUser); // Casting para garantir compatibilidade
+        } catch (error) {
+            console.error(error);
+        }
+    }, []);
+
+    useEffect(() => {
+        fectDadosUser();
+    }, [fectDadosUser]);
+
+
+    const handleInputChangeUser = (e: React.ChangeEvent<HTMLInputElement>, key: keyof AtualizarUser) => {
+        if (atualizarUser) {
+            setAtualizarUser({
+                ...atualizarUser,
+                [key]: e.target.value,
+            });
+        }
+    };
+
+    const handleSaveClickUser = async () => {
+        const token = localStorage.getItem('token') || '';
+        if (atualizarUser) {
+            try {
+                await Useratualizar(token, atualizarUser);
+                setObterDadosUser(atualizarUser as UserId); // Casting para garantir compatibilidade
+                setIsEditing(false);
+
+            } catch (error) {
+                console.error('Erro ao atualizar dados da empresa:', error);
+                setIsEditing(true);
+
+            }
+        }
+    };
+
+    const checkScreenSize = () => {
+        setIsSmallScreen(window.innerWidth <= 768);
+    };
+
+    const handleSidebarVisibility = () => {
+        const shouldShowSidebar = window.innerWidth > 768;
+        setIsOpen(shouldShowSidebar);
+    };
+
+    useEffect(() => {
+        checkScreenSize();
+        handleSidebarVisibility()
+        const handleResize = () => {
+            checkScreenSize();
+            handleSidebarVisibility();
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
     const toggleSidebar = () => {
-      setIsOpen(!isOpen);
+        setIsOpen(!isOpen);
     };
 
     const fetchDadosEmpresa = useCallback(async () => {
@@ -59,7 +130,7 @@ export default function Profile() {
         try {
             const data = await ObterDadosEmpresa(token);
             setDadosEmpresa(data);
-            setDadosAlterados(data); 
+            setDadosAlterados(data);
         } catch (error) {
             console.error('Erro ao chamar dados da empresa:', error);
             setError('Erro ao carregar dados da empresa. Por favor, tente novamente mais tarde.');
@@ -78,7 +149,8 @@ export default function Profile() {
 
     const handleCancelClick = () => {
         setIsEditing(false);
-        setDadosAlterados(dadosEmpresa); 
+        setDadosAlterados(dadosEmpresa);
+        setAtualizarUser(obterDadosUser)
     };
 
     const handleSaveClick = async () => {
@@ -86,11 +158,11 @@ export default function Profile() {
         if (dadosAlterados) {
             try {
                 await AtualizarDadosEmpresa(dadosAlterados, token);
-                setDadosEmpresa(dadosAlterados); 
+                setDadosEmpresa(dadosAlterados);
                 setIsEditing(false);
             } catch (error) {
                 console.error('Erro ao atualizar dados da empresa:', error);
-                setIsEditing(true); 
+                setIsEditing(true);
                 setError('Erro ao atualizar dados da empresa. Por favor, tente novamente.');
             }
         }
@@ -98,7 +170,7 @@ export default function Profile() {
 
     const handleUpdatePassword = async () => {
         const token = localStorage.getItem('token') || '';
-        setError(null); 
+        setError(null);
 
         try {
             if (alterarSenha.oldPassword && alterarSenha.newPassword && alterarSenha.confirmPassword) {
@@ -124,8 +196,8 @@ export default function Profile() {
 
                 await AtualizarSenhaAdm(alterarSenha, token);
                 alert("Senha atualizada com sucesso!");
-                setModalOpen(false); 
-                setAlterarSenha({ oldPassword: '', newPassword: '', confirmPassword: '' }); 
+                setModalOpen(false);
+                setAlterarSenha({ oldPassword: '', newPassword: '', confirmPassword: '' });
             } else {
                 setError('Todos os campos de senha são obrigatórios.');
             }
@@ -144,202 +216,500 @@ export default function Profile() {
         }
     };
 
+    const handleInputAddChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setIp((prevIp) => ({ ...prevIp, [name]: value }));
+    };
+
+    const Addip = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token') || '';
+
+        if (ip.ip) {
+            const response = await AdicionarIpAcesso(token, ip);
+            console.log(response);
+            fecthBuscarCredenciais()
+        } else {
+            console.log('Endereço IP inválido.');
+        }
+    };
+
+    // const handleInputRemoveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const { name, value } = e.target;
+    //     setremoverIp((prevremover) => ({ ...prevremover, [name]: value }));
+    // };
+
+
+    const removeIp = async (ip: string) => {
+        const token = localStorage.getItem('token') || '';
+        try {
+            await deleteIp(token, { companyId: removerIp.companyId, ip });
+            fecthBuscarCredenciais(); // Atualiza os dados após a remoção
+            console.log('IP removido com sucesso:', ip);
+        } catch (error) {
+            console.error('Erro ao remover IP:', error);
+        }
+    };
+    
     return (
         <div className="flex">
             <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
             <div className={`flex-1 transition-margin duration-300 ease-in-out ${isSmallScreen ? 'ml-0' : (isOpen ? 'ml-64' : 'ml-0')}`} style={{ width: isOpen ? 'calc(100% - 256px)' : '100%' }}>
-            <Header titulo="Configurações" isOpen={isOpen} toggleSidebar={toggleSidebar} />
-            <div className="flex-col mt-20">
+                <Header titulo="Configurações" isOpen={isOpen} toggleSidebar={toggleSidebar} />
+                <div className="flex-col mt-20">
                     <div className="p-8">
-                        <Card className="rounded-xl p-5">
-                            <div className="flex justify-between mb-4">
-                                <h1 className="text-xl font-bold">Informações Cadastrais</h1>
-                                <div className="flex gap-3">
-                                    {isEditing ? (
-                                        <>
-                                            <Button onClick={handleSaveClick} className="bg-zinc-700">
-                                                Salvar
-                                            </Button>
-                                            <Button onClick={handleCancelClick} className="bg-red-600">
-                                                Cancelar
-                                            </Button>
-                                        </>
-                                    ) : (
-                                        <div className='flex flex-wrap gap-2 justify-end'>
-                                        <div className='relative '>
-                                            <Button onClick={handleEditClick} className="bg-pink-900  pl-8">
-                                                Editar
-                                            </Button>
-                                            <IconEdit className="absolute left-1 top-1/2 transform -translate-y-1/2 text-white" />
-                                        </div>
-                                        <div className='relative'>
-                                            <Button onClick={() => setModalOpen(true)} className=" bg-pink-900   pl-8">
-                                                Atualizar senha
-                                            </Button>
-                                            <IconLock className="absolute left-1 top-1/2 transform -translate-y-1/2 text-white" />
-                                        </div>
-                                    </div>
-                                    )}
-                                </div>
+                        <div className='flex gap-3 items-center'>
+                            <div className=''>
+                                <Button className="text-sm font-bold mb-5 h-7 rounded-sm bg-pink-900">Informações Cadastrais</Button>
                             </div>
+                            {obterDadosUser && obterDadosUser.master === 'S' && (
+                                <>
+                                    <div className=''>
+                                        <Button className="text-sm h-7 rounded-sm mb-5 " variant="secondary">
+                                            <Link href="/profile/users">Usuários</Link>
+                                        </Button>
+                                    </div>
+                                    <div className=''>
+                                        <Button className="text-sm mb-5 h-7 rounded-sm" variant="secondary">
+                                            <Link href="/profile/emps">Empresas</Link>
+                                        </Button>
+                                    </div>
+                                </>
+                            )}
+
+                        </div>
+                        <Card className="rounded-xl p-5">
 
                             {isLoading ? (
                                 <p>Carregando...</p>
                             ) : (
-                                <>
-                                    {dadosEmpresa && (
+                                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                                    <TabsList>
+                                        <TabsTrigger value="empresa">Empresa</TabsTrigger>
+                                        <TabsTrigger value="usuario">Usuário</TabsTrigger>
+                                        <TabsTrigger value="taxa">Taxa</TabsTrigger>
+                                        <TabsTrigger value="credenciais">Credenciais</TabsTrigger>
+                                    </TabsList>
+
+                                    <TabsContent value="empresa">
+                                        {dadosEmpresa && (
+                                            <div>
+                                                <div className="flex justify-end">
+                                                    {isEditing ? (
+                                                        <div className="flex gap-3">
+                                                            <Button onClick={handleSaveClick} className="bg-zinc-700 text-white">
+                                                                Salvar
+                                                            </Button>
+                                                            <Button onClick={handleCancelClick} className="bg-red-600 text-white">
+                                                                Cancelar
+                                                            </Button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="relative flex items-center">
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded p-2">
+                                                                        <IconDotsVertical className="w-6 h-6" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent className="absolute right-0 top-full mt-2 w-48 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
+                                                                    <DropdownMenuItem onSelect={handleEditClick} className="flex items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                                                        <IconEdit className="w-5 h-5 text-gray-600 mr-2" />
+                                                                        <span className="text-gray-700">Editar</span>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onSelect={() => setModalOpen(true)} className="flex items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                                                        <IconLock className="w-5 h-5 text-gray-600 mr-2" />
+                                                                        <span className="text-gray-700">Atualizar senha</span>
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="mb-6">
+                                                    <h2 className="text-lg font-semibold mb-2">Empresa:</h2>
+                                                    <div className="grid grid-cols-3 gap-3">
+                                                        {/* Informações da Empresa */}
+                                                        <div>
+                                                            <Label>Nome</Label>
+                                                            <Input
+                                                                disabled
+                                                                value={dadosAlterados?.name || ''} />
+                                                        </div>
+                                                        <div>
+                                                            <Label>E-mail</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.email || ''}
+                                                                onChange={(e) => handleInputChange(e, 'email')}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>IE</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.ie || ''}
+                                                                onChange={(e) => handleInputChange(e, 'ie')}
+                                                                className=''
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>IM</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.im || ''}
+                                                                onChange={(e) => handleInputChange(e, 'im')}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>Telefone</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.phone || ''}
+                                                                onChange={(e) => handleInputChange(e, 'phone')}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>Site</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.site || ''}
+                                                                onChange={(e) => handleInputChange(e, 'site')}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h2 className="text-lg font-semibold mb-2">Endereço:</h2>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <Label>Logradouro</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.street || ''}
+                                                                onChange={(e) => handleInputChange(e, 'street')}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>Nº</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.number || ''}
+                                                                onChange={(e) => handleInputChange(e, 'number')}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>Complemento</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.complement || ''}
+                                                                onChange={(e) => handleInputChange(e, 'complement')}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>Bairro</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.neighborhood || ''}
+                                                                onChange={(e) => handleInputChange(e, 'neighborhood')}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>Cidade</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.city || ''}
+                                                                onChange={(e) => handleInputChange(e, 'city')}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>UF</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.uf || ''}
+                                                                onChange={(e) => handleInputChange(e, 'uf')}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label>CEP</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.cep || ''}
+                                                                onChange={(e) => handleInputChange(e, 'cep')}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </TabsContent>
+
+                                    <TabsContent value="usuario">
                                         <div>
-                                            <div className="mb-6">
-                                                <h2 className="text-lg font-semibold mb-2">Empresa:</h2>
-                                                <div className="grid grid-cols-3 gap-3">
-                                                    <div>
-                                                        <Label>Nome</Label>
-                                                        <Input disabled value={dadosAlterados?.name || ''} />
+                                            <div className="flex justify-end">
+                                                {isEditing ? (
+                                                    <div className="flex gap-3">
+                                                        <Button onClick={handleSaveClickUser} className="bg-zinc-700 text-white">
+                                                            Salvar
+                                                        </Button>
+                                                        <Button onClick={handleCancelClick} className="bg-red-600 text-white">
+                                                            Cancelar
+                                                        </Button>
                                                     </div>
-                                                    <div>
-                                                        <Label>E-mail</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.email || ''}
-                                                            onChange={(e) => handleInputChange(e, 'email')}
-                                                        />
+                                                ) : (
+                                                    <div className="relative flex items-center">
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded p-2">
+                                                                    <IconDotsVertical className="w-6 h-6" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className="absolute right-0 top-full mt-2 w-48 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
+                                                                <DropdownMenuItem onSelect={handleEditClick} className="flex items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                                                    <IconEdit className="w-5 h-5 text-gray-600 mr-2" />
+                                                                    <span className="text-gray-700">Editar</span>
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
                                                     </div>
-                                                    <div>
-                                                        <Label>IE</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.ie || ''}
-                                                            onChange={(e) => handleInputChange(e, 'ie')}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label>IM</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.im || ''}
-                                                            onChange={(e) => handleInputChange(e, 'im')}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label>Telefone</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.phone || ''}
-                                                            onChange={(e) => handleInputChange(e, 'phone')}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label>Site</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.site || ''}
-                                                            onChange={(e) => handleInputChange(e, 'site')}
-                                                        />
-                                                    </div>
-                                                </div>
+                                                )}
                                             </div>
-
-                                            <div>
-                                                <h2 className="text-lg font-semibold mb-2">Endereço:</h2>
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div>
-                                                        <Label>Logradouro</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.street || ''}
-                                                            onChange={(e) => handleInputChange(e, 'street')}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label>Nº</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.number || ''}
-                                                            onChange={(e) => handleInputChange(e, 'number')}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label>Complemento</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.complement || ''}
-                                                            onChange={(e) => handleInputChange(e, 'complement')}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label>Bairro</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.neighborhood || ''}
-                                                            onChange={(e) => handleInputChange(e, 'neighborhood')}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label>Cidade</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.city || ''}
-                                                            onChange={(e) => handleInputChange(e, 'city')}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label>UF</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.uf || ''}
-                                                            onChange={(e) => handleInputChange(e, 'uf')}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label>CEP</Label>
-                                                        <Input
-                                                            disabled={!isEditing}
-                                                            value={dadosAlterados?.cep || ''}
-                                                            onChange={(e) => handleInputChange(e, 'cep')}
-                                                        />
-                                                    </div>
+                                            <h2 className="text-lg font-semibold mb-2">Usuário:</h2>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {/* Informações do Usuário */}
+                                                <div>
+                                                    <Label>Id</Label>
+                                                    <Input disabled value={obterDadosUser?.id || ''} />
                                                 </div>
-                                            </div>
-
-                                            <div>
-                                                <h2 className="text-lg font-semibold mb-2 mt-5">Taxas:</h2>
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div>
-                                                        <Label>typeFee</Label>
-                                                        <Input disabled value={dadosAlterados?.typeFee || ''} />
-                                                    </div>
-                                                    <div>
-                                                        <Label>valueFee</Label>
-                                                        <Input disabled value={dadosAlterados?.valueFee || ''} />
-                                                    </div>
-                                                    <div>
-                                                        <Label>partnerTypeFee</Label>
-                                                        <Input disabled value={dadosAlterados?.partnerTypeFee || ''} />
-                                                    </div>
-                                                    <div>
-                                                        <Label>partnerValueFee</Label>
-                                                        <Input disabled value={dadosAlterados?.partnerValueFee || ''} />
-                                                    </div>
-                                                    <div>
-                                                        <Label>totalFee</Label>
-                                                        <Input disabled value={dadosAlterados?.totalFee || ''} />
-                                                    </div>
-                                                    <div>
-                                                        <Label>status</Label>
-                                                        <Input disabled value={dadosAlterados?.status || ''} />
-                                                    </div>
+                                                <div>
+                                                    <Label>Nome</Label>
+                                                    <Input
+                                                        disabled
+                                                        value={obterDadosUser?.name || ''}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Código empresa</Label>
+                                                    <Input disabled value={obterDadosUser?.codiemp || ''} />
+                                                </div>
+                                                <div>
+                                                    <Label>Master</Label>
+                                                    <Input disabled value={obterDadosUser?.master || ''} />
+                                                </div>
+                                                <div>
+                                                    <Label>CPF</Label>
+                                                    <Input disabled value={obterDadosUser?.documentNumber || ''} />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor='phone'>Telefone</Label>
+                                                    <Input
+                                                        type="text"
+                                                        id="phone"
+                                                        name="phone"
+                                                        disabled={!isEditing}
+                                                        value={atualizarUser?.phone || ''}
+                                                        onChange={(e) => handleInputChangeUser(e, 'phone')}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Data de nascimento</Label>
+                                                    <Input disabled value={obterDadosUser?.birthDate || ''} />
+                                                </div>
+                                                <div>
+                                                    <Label>CEP</Label>
+                                                    <Input
+                                                        disabled={!isEditing}
+                                                        value={atualizarUser?.cep || ''}
+                                                        onChange={(e) => handleInputChangeUser(e, 'cep')}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Logradouro</Label>
+                                                    <Input
+                                                        disabled={!isEditing}
+                                                        value={atualizarUser?.street || ''}
+                                                        onChange={(e) => handleInputChangeUser(e, 'street')}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Nº</Label>
+                                                    <Input
+                                                        disabled={!isEditing}
+                                                        value={atualizarUser?.number || ''}
+                                                        onChange={(e) => handleInputChangeUser(e, 'number')}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Complemento</Label>
+                                                    <Input
+                                                        disabled
+                                                        value={atualizarUser?.complement || ''}
+                                                        onChange={(e) => handleInputChangeUser(e, 'complement')}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Bairro</Label>
+                                                    <Input
+                                                        disabled={!isEditing}
+                                                        value={atualizarUser?.neighborhood || ''}
+                                                        onChange={(e) => handleInputChangeUser(e, 'neighborhood')}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Cidade</Label>
+                                                    <Input
+                                                        disabled
+                                                        value={atualizarUser?.city || ''}
+                                                        onChange={(e) => handleInputChangeUser(e, 'city')}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>UF</Label>
+                                                    <Input
+                                                        disabled
+                                                        value={atualizarUser?.uf || ''}
+                                                        onChange={(e) => handleInputChangeUser(e, 'uf')}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
-                                    )}
-                                </>
+                                    </TabsContent>
+
+                                    <TabsContent value="taxa">
+                                        <div>
+                                            <h2 className="text-lg font-semibold mb-2">Taxas:</h2>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {/* Informações da Taxa */}
+                                                <div>
+                                                    <Label>Tipo Taxa</Label>
+                                                    <Input disabled value={dadosAlterados?.typeFee || ''} />
+                                                </div>
+                                                <div>
+                                                    <Label>Valor Taxa</Label>
+                                                    <Input disabled value={dadosAlterados?.valueFee || ''} />
+                                                </div>
+                                                <div>
+                                                    <Label>Tipo Parceiro</Label>
+                                                    <Input
+                                                        disabled={!isEditing}
+                                                        value={dadosAlterados?.partnerTypeFee || ''}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Taxa Parceiro</Label>
+                                                    <Input disabled value={dadosAlterados?.partnerValueFee || ''} />
+                                                </div>
+                                                <div>
+                                                    <Label>Taxa Total</Label>
+                                                    <Input disabled value={dadosAlterados?.totalFee || ''} />
+                                                </div>
+                                                <div>
+                                                    <Label>Status</Label>
+                                                    <Input disabled value={dadosAlterados?.status || ''} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </TabsContent>
+                                    <TabsContent value="credenciais">
+
+                                        <form onSubmit={Addip}>
+                                            {obterDadosUser && obterDadosUser.master === 'S' && (<div>
+                                                <Label htmlFor="companyId">Ip company</Label>
+                                                <Input
+                                                    type="text"
+                                                    id="companyId"
+                                                    name="companyId"
+                                                    value={ip.companyId}
+                                                    onChange={handleInputAddChange}
+                                                />
+                                            </div>)}
+                                            <div>
+                                                <Label htmlFor="Ip">Ip</Label>
+                                                <Input
+                                                    type="text"
+                                                    id="ip"
+                                                    name="ip"
+                                                    value={ip.ip}
+                                                    onChange={handleInputAddChange}
+                                                />
+                                            </div>
+                                            <div>
+                                                <Button type="submit">Enviar</Button>
+                                            </div>
+                                            {/* {error && <div style={{ color: 'red' }}>{error}</div>} */}
+                                        * </form>
+                                        {/* <form onSubmit={removeIp}>
+                                            <div>
+                                                <label htmlFor="companyId">id company</label>
+                                                <input
+                                                    type="text"
+                                                    id="companyId"
+                                                    name="companyId"
+                                                    value={removerIp.companyId}
+                                                    onChange={handleInputRemoveChange}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label htmlFor="ip">ip</label>
+                                                <input
+                                                    type="text"
+                                                    id="ip"
+                                                    name="ip"
+                                                    value={removerIp.ip}
+                                                    onChange={handleInputRemoveChange}
+                                                />
+                                            </div>
+                                            <div>
+                                                <button type="submit">Enviar</button>
+                                            </div>
+                                            {/* {error && <div style={{ color: 'red' }}>{error}</div>} */}
+                                        {/* </form> */} 
+                                        <div>
+                                            <div>
+                                                <label>Username:</label>
+                                                <Input
+                                                    type="text"
+                                                    value={dadosCredenciais?.username || ''}
+                                                    readOnly
+                                                />
+                                            </div>
+                                            <div>
+                                                <label>Password:</label>
+                                                <Input
+                                                    type="text"
+                                                    value={dadosCredenciais?.password || ''}
+                                                    readOnly
+                                                />
+                                            </div>
+                                            <div>
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>IP Address</th>
+                                                            <th>Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {dadosCredenciais?.ips.map((ip, index) => (
+                                                            <tr key={index} className="border-t-[1px]">
+                                                                <td>{ip}</td>
+                                                                <td>
+                                                                    <button onClick={() => removeIp(ip)}>-</button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </TabsContent>
+                                </Tabs>
                             )}
                         </Card>
                     </div>
                 </div>
             </div>
-
-            {/* Modal para atualização de senha */}
             {modalOpen && (
                 <div className="fixed z-10 inset-0 overflow-y-auto">
                     <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -401,7 +771,7 @@ export default function Profile() {
                                     Salvar
                                 </Button>
                                 <Button
-                                    onClick={() => setModalOpen(false)} 
+                                    onClick={() => setModalOpen(false)}
                                     className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                                 >
                                     Cancelar

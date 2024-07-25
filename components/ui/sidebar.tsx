@@ -110,7 +110,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                         Configurações
                       </AccordionTrigger>
                       <AccordionContent>
-                        <Link href="/profile" className={`flex items-center bg-pink-900 px-8 h-10 w-full py-5 pt-7 hover:text-gray-600 ${isActivePage("/profile") ? "tex-zinc-600" : ""}`}>
+                        <Link href="/profile" className={`flex items-center bg-pink-900 px-8 h-10 w-full py-5 pt-7 hover:text-gray-600 ${isActivePage("/profile") ? "text-zinc-600" : ""}`}>
                           <IconUserEdit size={24} strokeWidth={1.5} className="mr-2" />
                           Perfil
                         </Link>
