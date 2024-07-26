@@ -1,6 +1,7 @@
 import { IconBell, IconMenuDeep, IconMessageCircle, IconSearch, IconSettings, IconUser } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface HeaderProps {
   titulo: string;
@@ -55,9 +56,12 @@ export default function Header({ titulo, isOpen, toggleSidebar }: HeaderProps) {
               <IconBell className="text-zinc-500 text-xs hover:bg-slate-100 rounded-sm " />
             </Link>
           </li>
-          <li className=" p-3 rounded-full bg-slate-100">
+          <li className="  rounded-full bg-slate-100">
             <Link href="">
-              <IconUser className="text-zinc-500 text-xs " />
+                <Avatar>
+                  <AvatarImage src="" />
+                  <AvatarFallback><IconUser className="text-zinc-500 text-xs " /></AvatarFallback>
+              </Avatar>
             </Link>
           </li>
 

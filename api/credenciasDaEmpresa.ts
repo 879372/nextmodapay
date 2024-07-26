@@ -6,6 +6,7 @@ export type SolicitarCredenciasParams = string[]
 export interface CredenciaisResponse {
     pin: number,
     username: string
+    password: string
 }
 
 export const SolicitarCredenciasEmp = async (token:string, params:SolicitarCredenciasParams): Promise<CredenciaisResponse> =>{

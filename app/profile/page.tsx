@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import Sidebar from '@/components/ui/sidebar';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { IconDotsVertical, IconEdit, IconLock } from '@tabler/icons-react';
+import { IconDotsVertical, IconEdit, IconIndentDecrease, IconLock, IconTextDecrease } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import ObterDadosEmpresa, { Empresa } from '@/api/obterEmpresa';
 import AtualizarDadosEmpresa from '@/api/atualizarDadosEmpresa';
@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { AdicionarIp, AdicionarIpAcesso } from '@/api/adicionarIp';
 import { deleteIp, removerIpParams } from '@/api/removerIp';
 import { Credenciais, ListarCredenciais } from '@/api/listarCredenciais';
+import { SolicitarCredenciasEmp, SolicitarCredenciasParams } from '@/api/credenciasDaEmpresa';
 
 export default function Profile() {
     Auth();
@@ -37,7 +38,28 @@ export default function Profile() {
     const [ip, setIp] = useState<AdicionarIp>({ companyId: '', ip: '' });
     const [removerIp, setRemoverIp] = useState<removerIpParams>({ companyId: '', ip: '' });
     const [dadosCredenciais, setDadosCredenciais] = useState<Credenciais | null>(null);
+    const [credenciais, setCredenciais] = useState<SolicitarCredenciasParams>([]);
+    const [ipCredenciais, setIpCredenciais] = useState<string>('');
 
+    const SolicitarCredenciais = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const token: string = localStorage.getItem('token') || '';
+
+        const params: SolicitarCredenciasParams = [ipCredenciais];
+        try {
+            if (ipCredenciais) {
+                const response = await SolicitarCredenciasEmp(token, params);
+                setCredenciais([]); // Limpa o estado após a solicitação
+                setIpCredenciais('');
+                fecthBuscarCredenciais()
+                console.log(response);
+            } else {
+                console.log('Endereço de IP invalido')
+            }
+        } catch (error) {
+            console.error('Erro ao solicitar credenciais:', error);
+        }
+    };
 
     const fecthBuscarCredenciais = useCallback(async () => {
         const token = localStorage.getItem('token') || '';
@@ -60,7 +82,7 @@ export default function Profile() {
             const data = await buscarUserId(token);
             setObterDadosUser(data);
 
-            setAtualizarUser(data as AtualizarUser); // Casting para garantir compatibilidade
+            setAtualizarUser(data as AtualizarUser);
         } catch (error) {
             console.error(error);
         }
@@ -219,6 +241,7 @@ export default function Profile() {
     const handleInputAddChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setIp((prevIp) => ({ ...prevIp, [name]: value }));
+        setRemoverIp((prevRemover) => ({ ...prevRemover, [name]: value }));
     };
 
     const Addip = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -227,6 +250,7 @@ export default function Profile() {
 
         if (ip.ip) {
             const response = await AdicionarIpAcesso(token, ip);
+            setIp({ companyId: '', ip: '' });
             console.log(response);
             fecthBuscarCredenciais()
         } else {
@@ -234,10 +258,19 @@ export default function Profile() {
         }
     };
 
-    // const handleInputRemoveChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const { name, value } = e.target;
-    //     setremoverIp((prevremover) => ({ ...prevremover, [name]: value }));
-    // };
+    const handleRemoveIp = async (e: React.FormEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token') || '';
+
+        if (removerIp.ip) {
+            await deleteIp(token, removerIp);
+            setRemoverIp({ companyId: '', ip: '' });
+            console.log('IP removido com sucesso:', removerIp.ip);
+            fecthBuscarCredenciais();
+        } else {
+            console.log('Endereço IP inválido.');
+        }
+    };
 
 
     const removeIp = async (ip: string) => {
@@ -251,26 +284,27 @@ export default function Profile() {
         }
     };
     
+
     return (
         <div className="flex">
             <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
             <div className={`flex-1 transition-margin duration-300 ease-in-out ${isSmallScreen ? 'ml-0' : (isOpen ? 'ml-64' : 'ml-0')}`} style={{ width: isOpen ? 'calc(100% - 256px)' : '100%' }}>
                 <Header titulo="Configurações" isOpen={isOpen} toggleSidebar={toggleSidebar} />
                 <div className="flex-col mt-20">
-                    <div className="p-8">
-                        <div className='flex gap-3 items-center'>
+                    <div className="p-10 ">
+                        <div className='flex  items-center flex-wrap absolute top-24'>
                             <div className=''>
-                                <Button className="text-sm font-bold mb-5 h-7 rounded-sm bg-pink-900">Informações Cadastrais</Button>
+                                <Button className="text-sm hover:bg-white text-pink-900 font-bold mb-5 h-6 rounded-sm bg-white p-5 pb-5 rounded-b-none ">Informações Cadastrais</Button>
                             </div>
                             {obterDadosUser && obterDadosUser.master === 'S' && (
                                 <>
                                     <div className=''>
-                                        <Button className="text-sm h-7 rounded-sm mb-5 " variant="secondary">
+                                        <Button className="text-sm h-7 rounded-none  mb-5 p-5 " variant="secondary">
                                             <Link href="/profile/users">Usuários</Link>
                                         </Button>
                                     </div>
                                     <div className=''>
-                                        <Button className="text-sm mb-5 h-7 rounded-sm" variant="secondary">
+                                        <Button className="text-sm mb-5 h-7 rounded-sm rounded-tl-none rounded-bl-none  rounded-br-none p-5" variant="secondary">
                                             <Link href="/profile/emps">Empresas</Link>
                                         </Button>
                                     </div>
@@ -278,14 +312,14 @@ export default function Profile() {
                             )}
 
                         </div>
-                        <Card className="rounded-xl p-5">
+                        <Card className="rounded-xl p-5 mt-[15px] rounded-tl-none">
 
                             {isLoading ? (
                                 <p>Carregando...</p>
                             ) : (
-                                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                                    <TabsList>
-                                        <TabsTrigger value="empresa">Empresa</TabsTrigger>
+                                <Tabs value={activeTab} onValueChange={setActiveTab} className=''>
+                                    <TabsList className='flex flex-wrap justify-start max-w-[325px]'>
+                                        <TabsTrigger value="empresa" className='pb-1'>Empresa</TabsTrigger>
                                         <TabsTrigger value="usuario">Usuário</TabsTrigger>
                                         <TabsTrigger value="taxa">Taxa</TabsTrigger>
                                         <TabsTrigger value="credenciais">Credenciais</TabsTrigger>
@@ -308,18 +342,18 @@ export default function Profile() {
                                                         <div className="relative flex items-center">
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
-                                                                    <Button className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded p-2">
-                                                                        <IconDotsVertical className="w-6 h-6" />
+                                                                    <Button className="bg-transparent text-gray-700 hover:bg-gray-300 rounded p-1">
+                                                                        <IconDotsVertical className="w-5 h-5" />
                                                                     </Button>
                                                                 </DropdownMenuTrigger>
-                                                                <DropdownMenuContent className="absolute right-0 top-full mt-2 w-48 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
-                                                                    <DropdownMenuItem onSelect={handleEditClick} className="flex items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                                                <DropdownMenuContent className="absolute right-0 top-full mt-2 w-44 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
+                                                                    <DropdownMenuItem onSelect={handleEditClick} className="flex items-center p-1 hover:bg-gray-100 rounded-md cursor-pointer">
                                                                         <IconEdit className="w-5 h-5 text-gray-600 mr-2" />
-                                                                        <span className="text-gray-700">Editar</span>
+                                                                        <span className="text-gray-700 text-sm">Editar</span>
                                                                     </DropdownMenuItem>
-                                                                    <DropdownMenuItem onSelect={() => setModalOpen(true)} className="flex items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                                                    <DropdownMenuItem onSelect={() => setModalOpen(true)} className="flex items-center p-1 hover:bg-gray-100 rounded-md cursor-pointer">
                                                                         <IconLock className="w-5 h-5 text-gray-600 mr-2" />
-                                                                        <span className="text-gray-700">Atualizar senha</span>
+                                                                        <span className="text-gray-700 text-sm">Atualizar senha</span>
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
@@ -384,6 +418,14 @@ export default function Profile() {
                                                     <h2 className="text-lg font-semibold mb-2">Endereço:</h2>
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div>
+                                                            <Label>CEP</Label>
+                                                            <Input
+                                                                disabled={!isEditing}
+                                                                value={dadosAlterados?.cep || ''}
+                                                                onChange={(e) => handleInputChange(e, 'cep')}
+                                                            />
+                                                        </div>
+                                                        <div>
                                                             <Label>Logradouro</Label>
                                                             <Input
                                                                 disabled={!isEditing}
@@ -431,14 +473,7 @@ export default function Profile() {
                                                                 onChange={(e) => handleInputChange(e, 'uf')}
                                                             />
                                                         </div>
-                                                        <div>
-                                                            <Label>CEP</Label>
-                                                            <Input
-                                                                disabled={!isEditing}
-                                                                value={dadosAlterados?.cep || ''}
-                                                                onChange={(e) => handleInputChange(e, 'cep')}
-                                                            />
-                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </div>
@@ -461,14 +496,14 @@ export default function Profile() {
                                                     <div className="relative flex items-center">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <Button className="bg-gray-200 text-gray-700 hover:bg-gray-300 rounded p-2">
-                                                                    <IconDotsVertical className="w-6 h-6" />
+                                                                <Button className="bg-transparent text-gray-700 hover:bg-gray-300 rounded p-1">
+                                                                    <IconDotsVertical className="w-5 h-5" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className="absolute right-0 top-full mt-2 w-48 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
-                                                                <DropdownMenuItem onSelect={handleEditClick} className="flex items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                                            <DropdownMenuContent className="absolute right-0 top-full mt-2 w-44 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
+                                                                <DropdownMenuItem onSelect={handleEditClick} className="flex items-center p-1 hover:bg-gray-100 rounded-md cursor-pointer">
                                                                     <IconEdit className="w-5 h-5 text-gray-600 mr-2" />
-                                                                    <span className="text-gray-700">Editar</span>
+                                                                    <span className="text-gray-700 text-sm">Editar</span>
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
@@ -514,7 +549,7 @@ export default function Profile() {
                                                 </div>
                                                 <div>
                                                     <Label>Data de nascimento</Label>
-                                                    <Input disabled value={obterDadosUser?.birthDate || ''} />
+                                                    <Input disabled value={obterDadosUser?.birthDate ? new Date(obterDadosUser?.birthDate).toLocaleDateString(): ''} />
                                                 </div>
                                                 <div>
                                                     <Label>CEP</Label>
@@ -578,7 +613,7 @@ export default function Profile() {
 
                                     <TabsContent value="taxa">
                                         <div>
-                                            <h2 className="text-lg font-semibold mb-2">Taxas:</h2>
+                                            <h2 className="text-lg font-semibold mb-2 mt-10">Taxas:</h2>
                                             <div className="grid grid-cols-2 gap-4">
                                                 {/* Informações da Taxa */}
                                                 <div>
@@ -612,98 +647,119 @@ export default function Profile() {
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="credenciais">
+                                        <div className="grid grid-cols-2 gap-4 mt-10">
+                                            <div>
+                                                <form onSubmit={SolicitarCredenciais}>
 
-                                        <form onSubmit={Addip}>
-                                            {obterDadosUser && obterDadosUser.master === 'S' && (<div>
-                                                <Label htmlFor="companyId">Ip company</Label>
-                                                <Input
-                                                    type="text"
-                                                    id="companyId"
-                                                    name="companyId"
-                                                    value={ip.companyId}
-                                                    onChange={handleInputAddChange}
-                                                />
-                                            </div>)}
-                                            <div>
-                                                <Label htmlFor="Ip">Ip</Label>
-                                                <Input
-                                                    type="text"
-                                                    id="ip"
-                                                    name="ip"
-                                                    value={ip.ip}
-                                                    onChange={handleInputAddChange}
-                                                />
+                                                    <h1 className="font-bold">Solicitar Credenciais</h1>
+                                                    <div className='mt-4 mb-4'>
+                                                        <Label>Endereço de IP:</Label>
+                                                        <Input
+                                                            type="text"
+                                                            placeholder='127.0.0.1'
+                                                            id="credenciais"
+                                                            name="credenciais"
+                                                            value={ipCredenciais}
+                                                            onChange={(e) => setIpCredenciais(e.target.value)}
+                                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Button type="submit" className="bg-pink-900 text-white px-4 py-2 rounded-md shadow-sm ">
+                                                            Solicitar
+                                                        </Button>
+                                                    </div>
+                                                </form>
+
+                                                <form onSubmit={Addip} className="space-y-4">
+                                                    <h1 className='font-bold mt-4'>Adicionar ou Remover  endereço de IP</h1>
+                                                    {obterDadosUser && obterDadosUser.master === 'S' && (
+                                                        <div>
+                                                            <Label htmlFor="companyId">Id da Empresa</Label>
+                                                            <Input
+                                                                type="text"
+                                                                placeholder='1'
+                                                                id="companyId"
+                                                                name="companyId"
+                                                                value={ip.companyId}
+                                                                onChange={handleInputAddChange}
+                                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div>
+                                                        <Label htmlFor="ip">Endereço de IP</Label>
+                                                        <Input
+                                                            type="text"
+                                                            placeholder='127.0.0.1'
+                                                            id="ip"
+                                                            name="ip"
+                                                            value={ip.ip}
+                                                            onChange={handleInputAddChange}
+                                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+                                                        />
+                                                    </div>
+                                                    <div className="flex space-x-4">
+                                                        <Button type="submit" className="bg-pink-900 text-white px-4 py-2 rounded-md shadow-sm">
+                                                            Adicionar
+                                                        </Button>
+                                                        <Button type="button" onClick={handleRemoveIp} className="bg-red-600 text-white px-4 py-2 rounded-md shadow-sm">
+                                                            Remover
+                                                        </Button>
+                                                    </div>
+                                                </form>
+
                                             </div>
-                                            <div>
-                                                <Button type="submit">Enviar</Button>
-                                            </div>
-                                            {/* {error && <div style={{ color: 'red' }}>{error}</div>} */}
-                                        * </form>
-                                        {/* <form onSubmit={removeIp}>
-                                            <div>
-                                                <label htmlFor="companyId">id company</label>
-                                                <input
-                                                    type="text"
-                                                    id="companyId"
-                                                    name="companyId"
-                                                    value={removerIp.companyId}
-                                                    onChange={handleInputRemoveChange}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label htmlFor="ip">ip</label>
-                                                <input
-                                                    type="text"
-                                                    id="ip"
-                                                    name="ip"
-                                                    value={removerIp.ip}
-                                                    onChange={handleInputRemoveChange}
-                                                />
-                                            </div>
-                                            <div>
-                                                <button type="submit">Enviar</button>
-                                            </div>
-                                            {/* {error && <div style={{ color: 'red' }}>{error}</div>} */}
-                                        {/* </form> */} 
-                                        <div>
-                                            <div>
-                                                <label>Username:</label>
-                                                <Input
-                                                    type="text"
-                                                    value={dadosCredenciais?.username || ''}
-                                                    readOnly
-                                                />
-                                            </div>
-                                            <div>
-                                                <label>Password:</label>
-                                                <Input
-                                                    type="text"
-                                                    value={dadosCredenciais?.password || ''}
-                                                    readOnly
-                                                />
-                                            </div>
-                                            <div>
-                                                <table>
-                                                    <thead>
-                                                        <tr>
-                                                            <th>IP Address</th>
-                                                            <th>Actions</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {dadosCredenciais?.ips.map((ip, index) => (
-                                                            <tr key={index} className="border-t-[1px]">
-                                                                <td>{ip}</td>
-                                                                <td>
-                                                                    <button onClick={() => removeIp(ip)}>-</button>
-                                                                </td>
+                                            <div className="space-y-4">
+                                                <h1 className='font-bold'>Credenciais</h1>
+                                                <div>
+                                                    <Label>Username:</Label>
+                                                    <Input
+                                                        type="text"
+                                                        value={dadosCredenciais?.username || ''}
+                                                        readOnly
+                                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Password:</Label>
+                                                    <Input
+                                                        type="text"
+                                                        value={dadosCredenciais?.password || ''}
+                                                        readOnly
+                                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-300"
+                                                    />
+                                                </div>
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full bg-white border border-gray-300 rounded-md shadow-sm">
+                                                        <thead>
+                                                            <tr className="bg-gray-200">
+                                                                <th className="px-4 py-2 text-left">IP Address</th>
+                                                                <th className="px-4 py-2 text-left">Actions</th>
                                                             </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
+                                                        </thead>
+                                                        <tbody>
+                                                            {dadosCredenciais?.ips.map((ip, index) => (
+                                                                <tr key={index} className="border-t border-gray-300">
+                                                                    <td className="px-4 py-2">{ip}</td>
+                                                                    <td className="px-4 py-2">
+                                                                        <Button
+
+                                                                            onClick={() => removeIp(ip)}
+                                                                            className="text-white bg-red-600 h-8"
+                                                                        >
+                                                                            -
+                                                                        </Button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                         </div>
                                     </TabsContent>
+
                                 </Tabs>
                             )}
                         </Card>

@@ -165,29 +165,32 @@ export default function Profile() {
         setIsOpen(!isOpen);
     };
 
+    
     return (
         <div className="flex">
             <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
             <div className={`flex-1 transition-margin duration-300 ease-in-out ${isSmallScreen ? 'ml-0' : isOpen ? 'ml-64' : 'ml-0'}`} style={{ width: isOpen ? 'calc(100% - 256px)' : '100%' }}>
                 <Header titulo="Configurações" isOpen={isOpen} toggleSidebar={toggleSidebar} />
                 <div className="flex-col mt-20">
-                    <div className="p-8">
-                        <div className="flex gap-3">
-                            <div>
-                                <Button className="text-sm mb-5 h-7 rounded-sm" variant="secondary">
+                <div className="p-10">
+                    <div className='flex  items-center flex-wrap absolute top-24'>
+                            <div className=''>
+                                <Button className="text-sm h-7 rounded-none  mb-6 p-5 rounded-tl-sm " variant="secondary">
                                     <Link href="/profile">Informações cadastrais</Link>
                                 </Button>
                             </div>
-                            <div>
-                                <Button className="text-sm mb-5 h-7 rounded-sm" variant="secondary">
+                            <div className=''>
+                                <Button className="text-sm h-7 rounded-none  mb-6 p-5 " variant="secondary">
                                     <Link href="/profile/users">Usuários</Link>
                                 </Button>
                             </div>
-                            <div>
-                                <Button className="text-sm font-bold mb-5 bg-pink-900 h-7 rounded-sm">Empresa</Button>
+                            <div className=''>
+                                <Button className="text-sm hover:bg-white text-pink-900 font-bold mb-6 h-6 rounded-sm bg-white p-5 pb-5 rounded-b-none " variant="secondary">
+                                    <Link href="">Empresas</Link>
+                                </Button>
                             </div>
                         </div>
-                        <Card className="rounded-xl p-5">
+                        <Card className="rounded-xl p-5 mt-[15px] rounded-tl-none">
                             {listarEmps ? (
                                 <div>
                                     <div className="flex justify-between mb-2">
@@ -209,19 +212,18 @@ export default function Profile() {
                                                         {/* Cabeçalhos da tabela */}
                                                         <TableHead>ID</TableHead>
                                                         <TableHead>Nome Fantasia</TableHead>
-                                                        <TableHead>Razão Social</TableHead>
-                                                        <TableHead>E-mail</TableHead>
+                                                        {/* <TableHead>Razão Social</TableHead> */}
                                                         <TableHead>CNPJ</TableHead>
-                                                        <TableHead>Site</TableHead>
-                                                        <TableHead>Webhook</TableHead>
-                                                        <TableHead>Webhook Out</TableHead>
-                                                        <TableHead>Usuário</TableHead>
+                                                        <TableHead>E-mail</TableHead>
+                                                        <TableHead>Status</TableHead>
+                                                        <TableHead></TableHead>
                                                         <TableHead>Taxa do Parceiro</TableHead>
                                                         <TableHead>Valor Parceiro</TableHead>
                                                         <TableHead>Tipo de Taxa</TableHead>
                                                         <TableHead>Valor Taxa</TableHead>
                                                         <TableHead>Taxa Total</TableHead>
-                                                        <TableHead>Status</TableHead>
+                                                        <TableHead>Site</TableHead>
+                                                        <TableHead>Usuário</TableHead>
                                                         <TableHead>Telefone</TableHead>
                                                         <TableHead>IE</TableHead>
                                                         <TableHead>IM</TableHead>
@@ -232,6 +234,8 @@ export default function Profile() {
                                                         <TableHead>Cidade</TableHead>
                                                         <TableHead>UF</TableHead>
                                                         <TableHead>CEP</TableHead>
+                                                        <TableHead>Webhook</TableHead>
+                                                        <TableHead>Webhook Out</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
@@ -240,75 +244,18 @@ export default function Profile() {
                                                             {/* Células da tabela */}
                                                             <TableCell>{emps.id || '-'}</TableCell>
                                                             <TableCell>{emps.fantasy || '-'}</TableCell>
-                                                            <TableCell>{emps.name || '-'}</TableCell>
-                                                            <TableCell>{emps.email || '-'}</TableCell>
+                                                            {/* <TableCell>{emps.name || '-'}</TableCell> */}
                                                             <TableCell>{emps.documentNumber || '-'}</TableCell>
-                                                            <TableCell>{emps.site || '-'}</TableCell>
-                                                            <TableCell>{emps.webhook || '-'}</TableCell>
-                                                            <TableCell>{emps.webhook_out || '-'}</TableCell>
-                                                            <TableCell>{emps.username || '-'}</TableCell>
-                                                            {/* <TableCell>{emps.partnerTypeFee || '-'}</TableCell> */}
-                                                            <TableCell className='flex justify-evenly items-center'>{emps.partnerTypeFee}
-                                                                <DropdownMenu>
-                                                                    <DropdownMenuTrigger asChild>
-                                                                        <Button className="bg-transparent focus:border-0 text-gray-500 hover:bg-gray-300 p-0">
-                                                                            <IconDotsVertical className="w-5 h-5" />
-                                                                        </Button>
-                                                                    </DropdownMenuTrigger>
-                                                                    <DropdownMenuContent className="absolute right-0 top-full mt-2 w-16 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
-                                                                        <DropdownMenuItem onClick={() => handlePartnerTypeFeeChange(emps.id, emps.partnerTypeFee)} className="flex justify-center items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
-                                                                            <span className="text-gray-700 text-xs">
-                                                                                {emps.partnerTypeFee === 'V' ? 'P' : 'V'}
-                                                                            </span>
-                                                                        </DropdownMenuItem>
-                                                                    </DropdownMenuContent>
-                                                                </DropdownMenu>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <Input
-                                                                    type="number"
-                                                                    step="0.01"
-                                                                    value={emps.partnerValueFee || ''}
-                                                                    onChange={(e) => handleTaxaParceiroChange(
-                                                                        emps.id,
-                                                                        emps.partnerTypeFee,
-                                                                        e.target.value
-                                                                    )}
-                                                                    className="h-8 max-w-20 bg-transparent border-transparent focus:border-transparent focus:outline-none"
-                                                                />
-                                                            </TableCell>
-                                                            <TableCell className='flex justify-evenly items-center'>{emps.typeFee}
-                                                                <DropdownMenu>
-                                                                    <DropdownMenuTrigger asChild>
-                                                                        <Button className="bg-transparent focus:none text-gray-500 hover:bg-gray-300 p-0">
-                                                                            <IconDotsVertical className="w-5 h-5" />
-                                                                        </Button>
-                                                                    </DropdownMenuTrigger>
-                                                                    <DropdownMenuContent className="absolute right-0 top-full mt-2 w-16 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
-                                                                        <DropdownMenuItem onClick={() => handleTypeFeeChange(emps.id, emps.typeFee)} className="flex justify-center items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
-                                                                            <span className="text-gray-700 text-xs">
-                                                                                {emps.typeFee === 'V' ? 'P' : 'V'}
-                                                                            </span>
-                                                                        </DropdownMenuItem>
-                                                                    </DropdownMenuContent>
-                                                                </DropdownMenu>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <Input
-                                                                    type="number"
-                                                                    step="0.01"
-                                                                    value={emps.valueFee || ''}
-                                                                    onChange={(e) => handleTaxaChange(
-                                                                        emps.id,
-                                                                        emps.typeFee,
-                                                                        e.target.value
-                                                                    )}
-                                                                    className="h-8 w-20 bg-transparent border-transparent focus:border-transparent focus:outline-none"
-                                                                    />
-                                                            </TableCell>
-                                                            <TableCell>{emps.totalFee || '-'}</TableCell>
+                                                            <TableCell>{emps.email || '-'}</TableCell>
 
-                                                            <TableCell className='flex justify-evenly items-center'>{emps.status}
+                                                            <TableCell className='flex justify-between items-center'>
+                                                                {emps.status === 'ATIVO' ? (
+                                                                    <span className='bg-green-100 text-green-500 p-1 rounded-sm w-full'>{emps.status || '-'}</span>
+                                                                ) : emps.status === 'PENDENTE' ? (
+                                                                    <span className='bg-yellow-100 text-yellow-500 p-1 rounded-sm w-full'>{emps.status || '-'}</span>
+                                                                ) : emps.status === 'INATIVO' ? (
+                                                                    <span className='bg-red-100 text-red-500 p-1 rounded-sm w-full'>{emps.status || '-'}</span>
+                                                                ) : <span className='bg-transparent text-zinc-500'>{emps.status || '-'}</span>}
                                                                 <DropdownMenu>
                                                                     <DropdownMenuTrigger asChild>
                                                                         <Button className="bg-transparent focus:border-0 text-gray-500 hover:bg-gray-300 p-0">
@@ -324,6 +271,77 @@ export default function Profile() {
                                                                     </DropdownMenuContent>
                                                                 </DropdownMenu>
                                                             </TableCell>
+
+                                                                <TableCell></TableCell>
+
+                                                            <TableCell className='flex justify-evenly items-center'>{emps.partnerTypeFee || '-'}
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <Button className="bg-transparent focus:border-0 text-gray-500 hover:bg-gray-300 p-0">
+                                                                            <IconDotsVertical className="w-5 h-5" />
+                                                                        </Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent className="absolute right-0 top-full mt-2 w-16 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
+                                                                        <DropdownMenuItem onClick={() => handlePartnerTypeFeeChange(emps.id, emps.partnerTypeFee)} className="flex justify-center items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                                                            <span className="text-gray-700 text-xs">
+                                                                                {emps.partnerTypeFee === 'V' ? 'P' : 'V'}
+                                                                            </span>
+                                                                        </DropdownMenuItem>
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
+                                                            </TableCell>
+
+
+
+                                                            <TableCell>
+                                                                <Input
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    value={emps.partnerValueFee || ''}
+                                                                    onChange={(e) => handleTaxaParceiroChange(
+                                                                        emps.id,
+                                                                        emps.partnerTypeFee,
+                                                                        e.target.value
+                                                                    )}
+                                                                    className="h-8 max-w-20 bg-transparent  focus:border-transparent focus:outline-none"
+                                                                />
+                                                            </TableCell>
+
+                                                            <TableCell className='flex justify-evenly items-center'>{emps.typeFee || '-'}
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <Button className="bg-transparent focus:none text-gray-500 hover:bg-gray-300 p-0">
+                                                                            <IconDotsVertical className="w-5 h-5" />
+                                                                        </Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent className="absolute right-0 top-full mt-2 w-16 bg-white shadow-lg rounded-md border border-gray-200 p-2 flex flex-col">
+                                                                        <DropdownMenuItem onClick={() => handleTypeFeeChange(emps.id, emps.typeFee)} className="flex justify-center items-center p-2 hover:bg-gray-100 rounded-md cursor-pointer">
+                                                                            <span className="text-gray-700 text-xs">
+                                                                                {emps.typeFee === 'V' ? 'P' : 'V'}
+                                                                            </span>
+                                                                        </DropdownMenuItem>
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
+                                                            </TableCell>
+
+
+                                                            <TableCell>
+                                                                <Input
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    value={emps.valueFee || ''}
+                                                                    onChange={(e) => handleTaxaChange(
+                                                                        emps.id,
+                                                                        emps.typeFee,
+                                                                        e.target.value
+                                                                    )}
+                                                                    className="h-8 w-20 bg-transparent  focus:border-transparent focus:outline-none"
+                                                                />
+                                                            </TableCell>
+
+                                                            <TableCell>{emps.totalFee || '-'}</TableCell>
+                                                            <TableCell>{emps.site || '-'}</TableCell>
+                                                            <TableCell>{emps.username || '-'}</TableCell>
                                                             <TableCell>{emps.phone || '-'}</TableCell>
                                                             <TableCell>{emps.ie || '-'}</TableCell>
                                                             <TableCell>{emps.im || '-'}</TableCell>
@@ -334,6 +352,8 @@ export default function Profile() {
                                                             <TableCell>{emps.city || '-'}</TableCell>
                                                             <TableCell>{emps.uf || '-'}</TableCell>
                                                             <TableCell>{emps.cep || '-'}</TableCell>
+                                                            <TableCell>{emps.webhook || '-'}</TableCell>
+                                                            <TableCell>{emps.webhook_out || '-'}</TableCell>
                                                         </TableRow>
                                                     ))}
                                                 </TableBody>

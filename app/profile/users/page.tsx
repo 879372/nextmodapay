@@ -17,8 +17,6 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { masterAtualizar } from '@/api/atualizarUser';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 
-
-
 export default function Profile() {
     Auth();
     const [isOpen, setIsOpen] = useState(true);
@@ -64,15 +62,15 @@ export default function Profile() {
         }
     };
 
-    const Params: ParamsListarUsers = {
-        search: searchParams,
-        uf: ufParams,
-        master: masterParams,
-        limit: limitParams,
-        page: pageParams
-    }
-
     const fetchUsers = useCallback(async () => {
+        const Params: ParamsListarUsers = {
+            search: searchParams,
+            uf: ufParams,
+            master: masterParams,
+            limit: limitParams,
+            page: pageParams
+        };
+
         const token = localStorage.getItem('token') || '';
         try {
             const data = await ListarTodosUsers(token, Params);
@@ -87,7 +85,6 @@ export default function Profile() {
     useEffect(() => {
         fetchUsers();
     }, [fetchUsers]);
-
 
     const limparDados = {
         name: '',
@@ -105,7 +102,7 @@ export default function Profile() {
         city: '',
         uf: '',
         codiemp: undefined
-    }
+    };
 
     const handleUserChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -122,15 +119,14 @@ export default function Profile() {
             const response = await CadastroUsuario(token, user);
             if (response?.status === 201) {
                 console.log('Usuário cadastrado com sucesso:', response);
-                setModalOpen(false)
-                setUser(limparDados)
-                console.log(response)
+                setModalOpen(false);
+                setUser(limparDados);
+                console.log(response);
             }
         } catch (error) {
             console.error('Erro ao cadastrar usuário:', error);
         }
     };
-
 
     const handlePageChange = (page: number) => {
         setPageParams(page - 1);
@@ -144,7 +140,6 @@ export default function Profile() {
         setPageParams((prev) => Math.max(prev - 1, 0));
     };
 
-
     const checkScreenSize = () => {
         setIsSmallScreen(window.innerWidth <= 768);
     };
@@ -156,7 +151,7 @@ export default function Profile() {
 
     useEffect(() => {
         checkScreenSize();
-        handleSidebarVisibility()
+        handleSidebarVisibility();
         const handleResize = () => {
             checkScreenSize();
             handleSidebarVisibility();
@@ -172,11 +167,10 @@ export default function Profile() {
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
     };
-    const openModalCloseSIdear = () => {
+    const openModalCloseSidebar = () => {
         setIsOpen(false);
-        setModalOpen(true)
+        setModalOpen(true);
     };
-
 
     return (
         <div className="flex">
@@ -184,19 +178,26 @@ export default function Profile() {
             <div className={`flex-1 transition-margin duration-300 ease-in-out ${isSmallScreen ? 'ml-0' : (isOpen ? 'ml-64' : 'ml-0')}`} style={{ width: isOpen ? 'calc(100% - 256px)' : '100%' }}>
                 <Header titulo="Configurações" isOpen={isOpen} toggleSidebar={toggleSidebar} />
                 <div className="flex-col mt-20">
-                    <div className="p-8">
-                        <div className='flex gap-3'>
+                    <div className="p-10">
+                    <div className='flex  items-center flex-wrap absolute top-24'>
                             <div className=''>
-                                <Button className="text-sm mb-5 h-7 rounded-sm" variant="secondary"><Link href="/profile">informações cadastrais</Link></Button>
+                                <Button className="text-sm h-7 rounded-none  mb-6 p-5 rounded-tl-sm " variant="secondary">
+                                    <Link href="/profile">Informações cadastrais</Link>
+                                </Button>
                             </div>
                             <div className=''>
-                                <Button className="text-sm font-bold mb-5 h-7 rounded-sm bg-pink-900">Usuários</Button>
+                                <Button className="text-sm hover:bg-white text-pink-900 font-bold mb-6 h-6 rounded-sm bg-white p-5 pb-5 rounded-b-none " variant="secondary">
+                                    <Link href="">Usuários</Link>
+                                </Button>
                             </div>
                             <div className=''>
-                                <Button className="text-sm  mb-5 h-7 rounded-sm" variant="secondary"><Link href="/profile/emps">Empresas</Link></Button>
+                                <Button className="text-sm mb-6 h-7 rounded-sm rounded-tl-none rounded-bl-none  rounded-br-none p-5" variant="secondary">
+                                    <Link href="/profile/emps">Empresas</Link>
+                                </Button>
                             </div>
+
                         </div>
-                        <Card className="rounded-xl p-5">
+                        <Card className="rounded-xl p-5 mt-[15px] rounded-tl-none">
 
                             {isLoading ? (
                                 <p>Carregando...</p>
@@ -210,7 +211,7 @@ export default function Profile() {
                                             className='h-8'
                                             placeholder='Pesquise um cliente...' />
                                     </div>
-                                    <Button onClick={() => openModalCloseSIdear()} variant={'secondary'}>Adicionar usuário</Button>
+                                    <Button onClick={() => openModalCloseSidebar()} variant={'secondary'}>Adicionar usuário</Button>
 
                                 </div>
                                 <div>
@@ -242,7 +243,8 @@ export default function Profile() {
                                                             <TableCell>{users.codiemp || '-'}</TableCell>
                                                             <TableCell>{users.email || '-'}</TableCell>
                                                             {/* <TableCell>{users.master || '-'}</TableCell> */}
-                                                            <TableCell className='flex justify-evenly items-center'>{users.master}
+                                                            <TableCell className='flex justify-evenly items-center'>
+                                                                {users.master === 'S' ? <span className='text-green-500 font-semibold'>{users.master}</span> : <span className=''> {users.master}</span>}
                                                                 <DropdownMenu>
                                                                     <DropdownMenuTrigger asChild>
                                                                         <Button className="bg-transparent focus:border-0 text-gray-500 hover:bg-gray-300 p-0">
@@ -272,33 +274,33 @@ export default function Profile() {
                                         <ScrollBar orientation="horizontal" />
                                     </ScrollArea>
                                     <div className="flex justify-between items-center mt-4">
-                                            <div className="flex-1">
-                                                <p className="text-sm text-muted-foreground">Página {pagination.currentPage + 1} de {pagination.totalPages}</p>
-                                            </div>
-                                            <div className="flex justify-end">
-                                                <Pagination>
-                                                    <PaginationContent>
-                                                        <PaginationItem>
-                                                            <PaginationPrevious onClick={handlePreviousPage} />
-                                                        </PaginationItem>
-                                                        {Array.from({ length: pagination.totalPages }, (_, page) => (
-                                                            <PaginationItem key={page + 1}>
-                                                                <PaginationLink
-                                                                    href="#"
-                                                                    onClick={() => handlePageChange(page + 1)}
-                                                                    className={pageParams === page ? 'active' : ''}
-                                                                >
-                                                                    {page + 1}
-                                                                </PaginationLink>
-                                                            </PaginationItem>
-                                                        ))}
-                                                        <PaginationItem>
-                                                            <PaginationNext onClick={handleNextPage} />
-                                                        </PaginationItem>
-                                                    </PaginationContent>
-                                                </Pagination>
-                                            </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm text-muted-foreground">Página {pagination.currentPage + 1} de {pagination.totalPages}</p>
                                         </div>
+                                        <div className="flex justify-end">
+                                            <Pagination>
+                                                <PaginationContent>
+                                                    <PaginationItem>
+                                                        <PaginationPrevious onClick={handlePreviousPage} />
+                                                    </PaginationItem>
+                                                    {Array.from({ length: pagination.totalPages }, (_, page) => (
+                                                        <PaginationItem key={page + 1}>
+                                                            <PaginationLink
+                                                                href="#"
+                                                                onClick={() => handlePageChange(page + 1)}
+                                                                className={pageParams === page ? 'active' : ''}
+                                                            >
+                                                                {page + 1}
+                                                            </PaginationLink>
+                                                        </PaginationItem>
+                                                    ))}
+                                                    <PaginationItem>
+                                                        <PaginationNext onClick={handleNextPage} />
+                                                    </PaginationItem>
+                                                </PaginationContent>
+                                            </Pagination>
+                                        </div>
+                                    </div>
 
                                 </div>
                             </div>)
